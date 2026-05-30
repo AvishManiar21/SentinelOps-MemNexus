@@ -566,9 +566,12 @@ if __name__ == "__main__":
                 
         print("\nSession logged. Thank you for using SentinelOps!")
     else:
-        # Default mode: Start dynamic Flask server on port 5000
+        # Default mode: Start dynamic Flask server with container compatibility
         print("\n" + "="*80)
         print("              SentinelOps SRE Agent API Server is launching...              ")
         print("="*80)
-        logger.info("Starting Flask web server on http://127.0.0.1:5000/ ...")
-        app.run(host="127.0.0.1", port=5000, debug=False)
+        port = int(os.environ.get("PORT", 5000))
+        logger.info(f"Starting Flask web server on port {port} (binding 0.0.0.0)...")
+        app.run(host="0.0.0.0", port=port, debug=False)
+
+
