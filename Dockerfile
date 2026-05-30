@@ -1,24 +1,32 @@
-# Use official Python lightweight base image
+# Use Python 3.11 slim image
 FROM python:3.11-slim
 
-# Prevent Python from writing .pyc files and enable unbuffered logging
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Set active working directory
+# Set working directory
 WORKDIR /app
 
-# Copy dependency manifest
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install dependencies
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application files
-COPY . .
+# Copy application code
+COPY agent.py .
+COPY index_docs.py .
+COPY index.html .
+COPY app.js .
+COPY styles.css .
 
-# Expose default Cloud Run port
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Expose port (Cloud Run will set PORT env var)
 EXPOSE 8080
 
-# Execute server
-CMD ["python", "agent.py"]
+# Run the Flask application
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 agent:app
