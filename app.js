@@ -9,7 +9,46 @@ document.addEventListener('DOMContentLoaded', () => {
         ? 'http://localhost:5000'
         : 'https://sentinelops-api-782741881130.us-central1.run.app';
 
+    // ---------------------------------------------------------
+    // 0. Sidebar Toggle (Hamburger Menu)
+    // ---------------------------------------------------------
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const body = document.body;
 
+    // Load sidebar state from localStorage
+    const savedSidebarState = localStorage.getItem('sidebarState') || 'expanded';
+    body.setAttribute('data-sidebar', savedSidebarState);
+
+    // Update hamburger menu active state based on sidebar state
+    if (savedSidebarState === 'collapsed') {
+        sidebarToggle.classList.add('active');
+    }
+
+    // Toggle sidebar on hamburger click
+    sidebarToggle.addEventListener('click', () => {
+        const currentState = body.getAttribute('data-sidebar');
+        const newState = currentState === 'expanded' ? 'collapsed' : 'expanded';
+
+        // Update state
+        body.setAttribute('data-sidebar', newState);
+        sidebarToggle.classList.toggle('active');
+
+        // Save to localStorage
+        localStorage.setItem('sidebarState', newState);
+
+        // Log for debugging
+        console.log('Sidebar toggled:', newState);
+    });
+
+    // Close sidebar on overlay click (mobile)
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('sidebar-overlay')) {
+            body.setAttribute('data-sidebar', 'collapsed');
+            sidebarToggle.classList.add('active');
+            localStorage.setItem('sidebarState', 'collapsed');
+        }
+    });
 
     // ---------------------------------------------------------
     // 1. Navigation Tab Switching System

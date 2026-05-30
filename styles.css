@@ -1764,3 +1764,150 @@ code {
 .bg-warning { background-color: var(--warning) !important; }
 .bg-error { background-color: var(--error) !important; }
 .bg-info { background-color: var(--info) !important; }
+
+/* ==============================================================================
+   HAMBURGER MENU & COLLAPSIBLE SIDEBAR
+   ============================================================================== */
+
+.hamburger-menu {
+    position: fixed;
+    top: var(--space-lg);
+    left: var(--space-lg);
+    z-index: 1000;
+    width: 40px;
+    height: 40px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    padding: 0;
+}
+
+.hamburger-menu:hover {
+    background: var(--bg-medium);
+    border-color: var(--claude-orange);
+    box-shadow: 0 0 0 3px var(--claude-orange-glow);
+}
+
+.hamburger-menu span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--text-primary);
+    border-radius: 2px;
+    transition: var(--transition);
+}
+
+.hamburger-menu.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger-menu.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Sidebar collapsed state */
+.sidebar {
+    transition: transform var(--transition-slow), width var(--transition-slow);
+}
+
+.sidebar.collapsed {
+    transform: translateX(-280px);
+    width: 0;
+}
+
+/* Adjust main content when sidebar is collapsed */
+.app-container {
+    transition: grid-template-columns var(--transition-slow);
+}
+
+.sidebar.collapsed ~ .app-container {
+    grid-template-columns: 0 1fr;
+}
+
+/* Alternative: Use data attribute for cleaner state management */
+body[data-sidebar="collapsed"] .app-container {
+    grid-template-columns: 0 1fr;
+}
+
+body[data-sidebar="collapsed"] .sidebar {
+    transform: translateX(-280px);
+}
+
+body[data-sidebar="collapsed"] .hamburger-menu {
+    left: var(--space-lg);
+}
+
+body[data-sidebar="expanded"] .hamburger-menu {
+    left: calc(280px + var(--space-lg));
+}
+
+/* Smooth hamburger menu position transition */
+.hamburger-menu {
+    left: calc(280px + var(--space-lg));
+    transition: left var(--transition-slow), background var(--transition), border-color var(--transition);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 999;
+        transform: translateX(-280px);
+    }
+    
+    .sidebar.expanded {
+        transform: translateX(0);
+    }
+    
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .hamburger-menu {
+        left: var(--space-lg);
+    }
+    
+    body[data-sidebar="expanded"] .hamburger-menu {
+        left: var(--space-lg);
+    }
+}
+
+/* Overlay for mobile when sidebar is open */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    body[data-sidebar="expanded"] .sidebar-overlay {
+        display: block;
+        opacity: 1;
+    }
+}
