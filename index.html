@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelOps — Autonomous SRE & DevOps Memory Agent Console</title>
+    <!-- Modern Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=2.0">
+</head>
+<body>
+    <!-- Radial Ambient Glowing Backdrops -->
+    <div class="orb orb-blue"></div>
+    <div class="orb orb-indigo"></div>
+    <div class="orb orb-purple"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-logo">🚨</span>
+                <div class="brand-text">
+                    <h1>SentinelOps</h1>
+                    <span>Autonomous SRE Portal</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="incident-command">
+                    <span class="nav-icon">🚨</span> Incident Command
+                </a>
+                <a href="#" class="nav-item" data-tab="diagnostic-chat">
+                    <span class="nav-icon">💬</span> SRE Diagnostic Chat
+                </a>
+                <a href="#" class="nav-item" data-tab="memory-core">
+                    <span class="nav-icon">🧠</span> MongoDB Memory Core
+                </a>
+                <a href="#" class="nav-item" data-tab="runbook-ingester">
+                    <span class="nav-icon">🛡️</span> Runbook Ingester
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-badge">
+                    <div class="user-avatar">AM</div>
+                    <div class="user-info">
+                        <span class="username">AvishManiar21</span>
+                        <span class="user-role">Lead DevOps Engineer</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Window -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="global-search" placeholder="Search system incidents, database memory, or runbooks...">
+                </div>
+                <div class="header-actions">
+                    <div class="system-status-badge">
+                        <span class="status-dot"></span>
+                        <span class="status-text">System Status: Monitoring</span>
+                    </div>
+                    <button class="icon-button notification-btn">
+                        🔔
+                        <span class="pulse-badge"></span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- TAB 1: INCIDENT COMMAND -->
+            <section class="tab-pane active" id="incident-command">
+                <div class="dashboard-grid">
+                    <!-- Observability Alerts Card -->
+                    <div class="glass-card alerts-card">
+                        <h2 class="card-title">🚨 Active Infrastructure Incidents (Dynatrace Simulation)</h2>
+                        <div class="incidents-list">
+                            <div class="incident-item high-alert">
+                                <div class="incident-badge">CRITICAL</div>
+                                <div class="incident-info">
+                                    <h3>Server Latency Spike — us-central1 CPU Usage 98.4%</h3>
+                                    <p>Dynatrace detected a latency regression of +1200ms in core microservice.</p>
+                                    <span class="timestamp-label">Triggered 2 minutes ago</span>
+                                </div>
+                                <button class="primary-btn" id="diagnose-spike-btn">Diagnose with Gemini ➔</button>
+                            </div>
+                            <div class="incident-item resolved">
+                                <div class="incident-badge">RESOLVED</div>
+                                <div class="incident-info">
+                                    <h3>MongoDB Connection Timeout — auth-service</h3>
+                                    <p>Simulated connection lock successfully debugged and resolved by agent.</p>
+                                    <span class="timestamp-label">Resolved 3 hours ago</span>
+                                </div>
+                                <span class="check-mark">✓</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Overview Metrics -->
+                    <div class="glass-card metrics-card">
+                        <h2 class="card-title">📈 Live System Performance Metrics</h2>
+                        <div class="metrics-grid">
+                            <div class="metric-box">
+                                <span class="metric-label">CPU LOAD</span>
+                                <span class="metric-val text-error" id="metric-cpu">98.4%</span>
+                            </div>
+                            <div class="metric-box">
+                                <span class="metric-label">NET LATENCY</span>
+                                <span class="metric-val text-warning">1420ms</span>
+                            </div>
+                            <div class="metric-box">
+                                <span class="metric-label">ACTIVE THREADS</span>
+                                <span class="metric-val">1,242</span>
+                            </div>
+                            <div class="metric-box">
+                                <span class="metric-label">API ERROR RATE</span>
+                                <span class="metric-val text-error">4.2%</span>
+                            </div>
+                        </div>
+
+                        <!-- Autonomous Agent Status -->
+                        <div class="agent-status-box">
+                            <div class="agent-status-header">
+                                <span class="agent-dot animate-pulse"></span>
+                                <strong>SentinelOps SRE Agent: STANDBY</strong>
+                            </div>
+                            <p>Awaiting observability alert webhook to execute autonomous root cause analysis and GitLab merge requests.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: DIAGNOSTIC CHAT CONSOLE -->
+            <section class="tab-pane" id="diagnostic-chat">
+                <div class="split-view">
+                    <!-- Chat Container -->
+                    <div class="glass-card chat-card">
+                        <h2 class="card-title">💬 SentinelOps Diagnostic Chat</h2>
+                        <div class="chat-messages" id="chat-messages-container">
+                            <div class="message agent">
+                                <div class="message-bubble">
+                                    System initialized. I am <strong>SentinelOps</strong>, your autonomous SRE Agent. 
+                                    I am connected to your live <strong>MongoDB Atlas</strong> database for operational memory. 
+                                    I can diagnose incidents, search running manuals, or write automated bug fixes.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thinking Terminal Logs -->
+                        <div class="terminal-logs-container" id="terminal-logs-area">
+                            <div class="logs-header">
+                                <span>Agent Decisional Traces (Observability & LLM reasoning)</span>
+                                <span class="logs-dot"></span>
+                            </div>
+                            <div class="logs-body" id="live-terminal-logs">
+                                <div class="log-line text-muted">[sys] Observability hooks initialized. Listening on port 8080...</div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-bar">
+                            <input type="text" id="chat-user-input" placeholder="Ask Gemini to run diagnostics or search SRE runbooks...">
+                            <button class="primary-btn" id="send-chat-btn">Send ➔</button>
+                        </div>
+                    </div>
+
+                    <!-- Live Code Hotfix Panel -->
+                    <div class="glass-card code-hotfix-card">
+                        <h2 class="card-title">🦊 GitLab Merge Request Hotfix (AI-Generated)</h2>
+                        <div class="code-hotfix-header">
+                            <span class="mr-id">MR: !428 - Fix CPU Latency Regression</span>
+                            <button class="primary-btn btn-sm" id="approve-mr-btn" disabled>Approve & Deploy ➔</button>
+                        </div>
+                        <div class="terminal-box code-panel">
+                            <div class="terminal-header">
+                                <div class="terminal-dot red"></div>
+                                <div class="terminal-dot yellow"></div>
+                                <div class="terminal-dot green"></div>
+                                <span class="terminal-title">hotfix.diff</span>
+                            </div>
+                            <pre class="terminal-body" id="hotfix-code-view">
+# AI SRE Hotfix Git Diff
+# Awaiting active incident diagnosis to generate resolution patch...
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: MONGODB MEMORY CORE -->
+            <section class="tab-pane" id="memory-core">
+                <div class="glass-card memory-full-card">
+                    <h2 class="card-title">🧠 MongoDB Atlas Memory Brain</h2>
+                    <p class="section-desc">SentinelOps uses a unified MongoDB Atlas cluster to store long-term contextual memories, incident histories, and dense vector embeddings side-by-side.</p>
+                    
+                    <div class="tabs-subnav">
+                        <button class="sub-tab active" data-subtab="col-users">🍃 SRE Profiles</button>
+                        <button class="sub-tab" data-subtab="col-sessions">🕒 Incident Sessions</button>
+                        <button class="sub-tab" data-subtab="col-vectors">🔗 Vector Runbooks</button>
+                    </div>
+
+                    <!-- Subtab: Users -->
+                    <div class="subtab-pane active" id="col-users">
+                        <div class="db-document">
+                            <div class="doc-header">
+                                <span class="doc-id">id: "sre_AvishManiar21"</span>
+                                <span class="doc-tag">Collection: users</span>
+                            </div>
+                            <pre class="doc-body" id="db-user-data">
+{
+  "_id": "sre_AvishManiar21",
+  "username": "AvishManiar21",
+  "project_role": "Lead DevOps Engineer",
+  "memory_tags": [
+    "ActiveCommunicator",
+    "MongoDBAtlasOperational",
+    "GCP_SRE_Agent"
+  ],
+  "preferences": {
+    "framework": "Google_Gen_AI_SDK",
+    "active_region": "us-central1",
+    "last_active": "2026-05-29T22:45:30"
+  },
+  "ai_synthesis_summary": "Lead SRE Engineer managing the avish-memnexus-2026 stack. Active session monitoring fully enabled."
+}</pre>
+                        </div>
+                    </div>
+
+                    <!-- Subtab: Sessions -->
+                    <div class="subtab-pane" id="col-sessions">
+                        <div id="sessions-list-container">
+                            <div class="db-document">
+                                <div class="doc-header">
+                                    <span class="doc-id">id: "ses_sre_incident_1"</span>
+                                    <span class="doc-tag">Collection: sessions</span>
+                                </div>
+                                <pre class="doc-body">
+{
+  "user_id": "AvishManiar21",
+  "user_message": "Tell me about SRE protocols",
+  "agent_response": "Here's information about the SRE Incident Response Protocol - Phase 4: When a CPU usage spike occurs, the agent executes log analysis, writes a hotfix, and opens a GitLab Merge Request...",
+  "timestamp": "2026-05-29T22:07:55"
+}</pre>
+                                </div>
+                        </div>
+                    </div>
+
+                    <!-- Subtab: Vectors -->
+                    <div class="subtab-pane" id="col-vectors">
+                        <div class="vector-search-header">
+                            <strong>Active Vector Index:</strong> <code>vector_index</code> (Similarity: Cosine, Dimensions: 768)
+                        </div>
+                        <div id="vectors-list-container">
+                            <div class="db-document">
+                                <div class="doc-header">
+                                    <span class="doc-id">id: "vec_sre_001"</span>
+                                    <span class="doc-tag">Collection: knowledge_vectors</span>
+                                </div>
+                                <pre class="doc-body">
+{
+  "title": "SRE Incident Response Protocol",
+  "content": "SRE Incident Response Protocol - Phase 4. When an observability tool (such as Dynatrace) triggers a webhook alert indicating high server latency or an active CPU spike, the SRE Incident Agent must immediately execute log analysis, identify the breaking commit in the codebase, write a hotfix, and automatically open a GitLab Merge Request containing the code resolution.",
+  "embedding": [0.0827, -0.0152, 0.1042, 0.0516, -0.1192, 0.0234, ... (768 dimensions)]
+}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: RUNBOOK INGESTER -->
+            <section class="tab-pane" id="runbook-ingester">
+                <div class="glass-card indexer-layout">
+                    <h2 class="card-title">🛡️ System Grounding Runbook Ingester</h2>
+                    <p class="section-desc">Upload, partition, and embed enterprise SRE runbooks, deployment guides, or troubleshooting wikis directly into your MongoDB Atlas Vector Search Database.</p>
+                    
+                    <div class="indexer-grid">
+                        <div class="indexer-form">
+                            <div class="form-group">
+                                <label for="manual-title">Runbook/Wiki Title</label>
+                                <input type="text" id="manual-title" placeholder="e.g. MongoDB Connection Fault Recovery Guide">
+                            </div>
+                            <div class="form-group">
+                                <label for="manual-content">Runbook Document Content</label>
+                                <textarea id="manual-content" rows="6" placeholder="Enter instructions or technical guides that you want Gemini SRE to retrieve using Vector Search..."></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="chunk-slider">Chunk Size Limit</label>
+                                    <input type="range" id="chunk-slider" min="100" max="500" value="250" class="slider">
+                                    <div class="slider-val"><span id="slider-out">250</span> characters</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vector-model-select">Embed Model</label>
+                                    <select id="vector-model-select">
+                                        <option value="gecko-004">text-embedding-004 (Google)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="primary-btn pulse-glow" id="embed-submit-btn">Embed & Upload to MongoDB Atlas</button>
+                        </div>
+
+                        <!-- Processing Simulation Terminal -->
+                        <div class="indexer-animation-card">
+                            <div class="terminal-box">
+                                <div class="terminal-header">
+                                    <div class="terminal-dot red"></div>
+                                    <div class="terminal-dot yellow"></div>
+                                    <div class="terminal-dot green"></div>
+                                    <span class="terminal-title">Vector Generator Pipelines</span>
+                                </div>
+                                <div class="terminal-body text-monospace" id="indexer-terminal-screen">
+                                    <div class="text-success">[sys] Embedding pipeline initial and offline. Ready for text runbooks...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js?v=2.0"></script>
+</body>
+</html>
