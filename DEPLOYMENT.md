@@ -23,8 +23,11 @@ All environment detection is handled in:
 ### Deployment Command (PowerShell)
 
 ```powershell
-gcloud run deploy sentinelops-api --source . --region us-central1 --allow-unauthenticated --set-env-vars "GCP_PROJECT_ID=avish-memnexus-2026,GCP_LOCATION=us-central1,GEMINI_MODEL=gemini-2.5-flash,USE_SECRET_MANAGER=false,MONGODB_URI=mongodb+srv://dbuser:oFWwhAhhgxebI9hi@cluster0.qajn3ij.mongodb.net/?appName=Cluster0"
+# Replace <YOUR_NEW_PASSWORD> with your actual MongoDB password
+gcloud run deploy sentinelops-api --source . --region us-central1 --allow-unauthenticated --set-env-vars "GCP_PROJECT_ID=avish-memnexus-2026,GCP_LOCATION=us-central1,GEMINI_MODEL=gemini-2.5-flash,USE_SECRET_MANAGER=false,MONGODB_URI=mongodb+srv://dbuser:<YOUR_NEW_PASSWORD>@cluster0.qajn3ij.mongodb.net/?appName=Cluster0"
 ```
+
+**⚠️ SECURITY NOTE**: Never commit your actual MongoDB password to the repository. Use Secret Manager for production (see below).
 
 ### Expected Output
 ```
