@@ -7,7 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Automatically resolve API base URL (local dev or production Cloud Run deployment)
     const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:5000'
-        : 'YOUR_DEPLOYED_CLOUD_RUN_URL'; // Replace this string with your Cloud Run URL once deployed!
+        : 'https://sentinelops-api-782741881130.us-central1.run.app';
+
 
 
     // ---------------------------------------------------------
