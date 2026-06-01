@@ -311,13 +311,31 @@ def serialize_mongo_doc(doc):
 # User active chat session tracking cache
 user_chats = {}
 
-def get_user_chat(user_id):
-    """Establishes or fetches the continuous chat session for an SRE user."""
-    if user_id not in user_chats:
+def get_user_chat(user_id, model=None):
+    """Establishes or fetches the continuous chat session for an SRE user.
+
+    Args:
+        user_id: User identifier
+        model: Gemini model to use (gemini-2.5-flash or gemini-2.5-pro). If None, uses default.
+    """
+    # Use default model if not specified
+    if model is None:
+        model = GEMINI_MODEL
+
+    # Validate model
+    valid_models = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash-exp"]
+    if model not in valid_models:
+        logger.warning(f"Invalid model '{model}' requested. Falling back to {GEMINI_MODEL}")
+        model = GEMINI_MODEL
+
+    # Create unique cache key for user + model combination
+    cache_key = f"{user_id}:{model}"
+
+    if cache_key not in user_chats:
         mem_init = load_user_memory(user_id)
-        logger.info(f"Instantiating model session {GEMINI_MODEL} for {user_id} with grounding tools...")
-        user_chats[user_id] = ai_client.chats.create(
-            model=GEMINI_MODEL,
+        logger.info(f"Instantiating model session {model} for {user_id} with grounding tools...")
+        user_chats[cache_key] = ai_client.chats.create(
+            model=model,
             config=types.GenerateContentConfig(
                 tools=[search_knowledge_base, load_user_memory, save_chat_history],
                 safety_settings=safety_settings,
@@ -328,7 +346,7 @@ def get_user_chat(user_id):
                 )
             )
         )
-    return user_chats[user_id]
+    return user_chats[cache_key]
 
 @app.route('/', methods=['GET'])
 def api_status():
@@ -345,27 +363,29 @@ def api_chat():
         data = request.get_json() or {}
         message = data.get("message")
         user_id = data.get("user_id", "AvishManiar21")
-        
+        model = data.get("model", GEMINI_MODEL)  # Support model selection
+
         if not message:
             return jsonify({"error": "Message is required."}), 400
-            
-        logger.info(f"API Request: POST /api/chat from '{user_id}': '{message[:40]}'")
-        
+
+        logger.info(f"API Request: POST /api/chat from '{user_id}' using {model}: '{message[:40]}'")
+
         # Clear log capturer string so we only get logs from this single call
         get_captured_traces()
-        
-        # Query the active Gemini chat session
-        chat = get_user_chat(user_id)
+
+        # Query the active Gemini chat session with selected model
+        chat = get_user_chat(user_id, model)
         response = chat.send_message(message)
-        
+
         # Persist memory metrics
         save_chat_history(user_id, message, response.text)
-        
+
         # Capture operations logs
         traces = get_captured_traces()
-        
+
         return jsonify({
             "response": response.text,
+            "model_used": model,
             "traces": traces
         })
     except Exception as e:
@@ -382,8 +402,9 @@ def api_diagnose():
         incident_id = data.get("incident_id", "spike")
         description = data.get("description", "Server Latency Spike — us-central1 CPU Usage 98.4%")
         user_id = data.get("user_id", "AvishManiar21")
-        
-        logger.info(f"API Request: POST /api/diagnose for incident '{incident_id}'")
+        model = data.get("model", GEMINI_MODEL)  # Support model selection for diagnostics
+
+        logger.info(f"API Request: POST /api/diagnose for incident '{incident_id}' using {model}")
         
         # Clear log capturer string
         get_captured_traces()
@@ -400,9 +421,9 @@ def api_diagnose():
             f"Keep the file name in the diff as 'hotfix.py' or 'server.py'."
         )
         
-        logger.info("Executing Vertex AI Gemini generateContent for incident diagnosis...")
+        logger.info(f"Executing Vertex AI Gemini generateContent for incident diagnosis with {model}...")
         response = ai_client.models.generate_content(
-            model=GEMINI_MODEL,
+            model=model,
             contents=f"Please diagnose incident: {description}. Use tools to find appropriate runbook protocols.",
             config=types.GenerateContentConfig(
                 tools=[search_knowledge_base],
