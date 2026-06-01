@@ -1,31 +1,29 @@
 # ==============================================================================
-# Secure Cloud Run Deployment Script
-# Prompts for MongoDB password instead of hardcoding it
+# Simple Cloud Run Deployment
+# Pass your password as a parameter: .\deploy-simple.ps1 YOUR_PASSWORD_HERE
 # ==============================================================================
 
+param(
+    [Parameter(Mandatory=$true, Position=0)]
+    [string]$MongoPassword
+)
+
 Write-Host ""
 Write-Host "================================" -ForegroundColor Cyan
-Write-Host "SentinelOps Secure Deployment" -ForegroundColor Cyan
+Write-Host "Deploying SentinelOps to Cloud Run" -ForegroundColor Cyan
 Write-Host "================================" -ForegroundColor Cyan
 Write-Host ""
-
-# Simple password prompt (will be visible while typing)
-Write-Host "Enter your MongoDB Atlas password:" -ForegroundColor Yellow
-$password = Read-Host
-
-# Build MongoDB URI
-$mongoUri = "mongodb+srv://dbuser:$password@cluster0.qajn3ij.mongodb.net/?appName=Cluster0"
-
-Write-Host ""
-Write-Host "Deploying to Cloud Run..." -ForegroundColor Green
 Write-Host "This may take 2-3 minutes..." -ForegroundColor Yellow
 Write-Host ""
+
+# Build MongoDB URI
+$mongoUri = "mongodb+srv://dbuser:$MongoPassword@cluster0.qajn3ij.mongodb.net/?appName=Cluster0"
 
 # Deploy to Cloud Run
 gcloud run deploy sentinelops-api --source . --region us-central1 --allow-unauthenticated --set-env-vars "GCP_PROJECT_ID=avish-memnexus-2026,GCP_LOCATION=us-central1,GEMINI_MODEL=gemini-2.5-flash,USE_SECRET_MANAGER=false,MONGODB_URI=$mongoUri"
 
-# Clear password from memory
-$password = $null
+# Clear from memory
+$MongoPassword = $null
 $mongoUri = $null
 
 Write-Host ""
