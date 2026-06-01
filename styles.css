@@ -533,6 +533,62 @@ code {
     gap: var(--space-md);
 }
 
+.card-header-with-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.card-header-with-controls .card-title {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.model-selector-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.model-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.model-dropdown {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    padding: var(--space-xs) var(--space-md);
+    font-size: 0.875rem;
+    font-family: var(--font-primary);
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 220px;
+}
+
+.model-dropdown:hover {
+    border-color: var(--claude-orange);
+    background: var(--bg-medium);
+}
+
+.model-dropdown:focus {
+    outline: none;
+    border-color: var(--claude-orange);
+    box-shadow: 0 0 0 3px var(--claude-orange-glow);
+}
+
+.model-dropdown option {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    padding: var(--space-sm);
+}
+
 .card-title::before {
     content: '';
     width: 3px;
@@ -1507,6 +1563,18 @@ code {
     border: 1px solid var(--border-color);
     color: var(--text-tertiary);
     font-style: italic;
+}
+
+.model-badge {
+    display: inline-block;
+    margin-top: var(--space-xs);
+    padding: 2px 8px;
+    background: var(--bg-medium);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
 }
 
 .loading-dots::after {

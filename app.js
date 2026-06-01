@@ -230,11 +230,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatInput = document.getElementById('chat-user-input');
     const sendBtn = document.getElementById('send-chat-btn');
     const chatMessages = document.getElementById('chat-messages-container');
+    const modelSelector = document.getElementById('model-selector');
 
-    function appendChatMessage(sender, text) {
+    // Load saved model preference
+    const savedModel = localStorage.getItem('selectedModel') || 'gemini-2.5-flash';
+    if (modelSelector) {
+        modelSelector.value = savedModel;
+    }
+
+    // Save model preference when changed
+    if (modelSelector) {
+        modelSelector.addEventListener('change', () => {
+            localStorage.setItem('selectedModel', modelSelector.value);
+            logTerminalLine(`Switched to ${modelSelector.value}`, 'sys');
+        });
+    }
+
+    function appendChatMessage(sender, text, modelUsed) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
-        msg.innerHTML = `<div class="message-bubble">${text}</div>`;
+        let bubble = `<div class="message-bubble">${text}</div>`;
+        if (sender === 'agent' && modelUsed) {
+            bubble += `<div class="model-badge">${modelUsed === 'gemini-2.5-pro' ? '🧠 Pro' : '⚡ Flash'}</div>`;
+        }
+        msg.innerHTML = bubble;
         chatMessages.appendChild(msg);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
@@ -243,6 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const query = chatInput.value.trim();
         if (!query) return;
 
+        const selectedModel = modelSelector ? modelSelector.value : 'gemini-2.5-flash';
+
         // Append user prompt
         appendChatMessage('user', query);
         chatInput.value = '';
@@ -250,17 +271,22 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add mock thinking indicator
         const thinkingBubble = document.createElement('div');
         thinkingBubble.className = 'message agent thinking';
-        thinkingBubble.innerHTML = `<div class="message-bubble"><span class="loading-dots">SentinelOps is searching runbooks and reasoning...</span></div>`;
+        const modelName = selectedModel === 'gemini-2.5-pro' ? 'Gemini Pro' : 'Gemini Flash';
+        thinkingBubble.innerHTML = `<div class="message-bubble"><span class="loading-dots">${modelName} is searching runbooks and reasoning...</span></div>`;
         chatMessages.appendChild(thinkingBubble);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        logTerminalLine(`Received SRE request: "${query}"`, 'sys');
+        logTerminalLine(`Received SRE request: "${query}" [Model: ${selectedModel}]`, 'sys');
 
         try {
             const res = await fetch(`${API_BASE}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: query, user_id: 'AvishManiar21' })
+                body: JSON.stringify({
+                    message: query,
+                    user_id: 'AvishManiar21',
+                    model: selectedModel
+                })
             });
 
             // Remove thinking bubble
@@ -269,8 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error('API server returned error');
             const data = await res.json();
 
-            // Render agent completion
-            appendChatMessage('agent', data.response);
+            // Render agent completion with model badge
+            appendChatMessage('agent', data.response, data.model_used || selectedModel);
             
             // Stream captured operational traces
             streamTraces(data.traces);
