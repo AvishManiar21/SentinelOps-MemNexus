@@ -1770,23 +1770,21 @@ code {
    ============================================================================== */
 
 .hamburger-menu {
-    position: fixed;
-    top: var(--space-lg);
-    left: var(--space-lg);
-    z-index: 1000;
-    width: 40px;
-    height: 40px;
+    position: relative;
+    width: 36px;
+    height: 36px;
     background: var(--bg-elevated);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     cursor: pointer;
     transition: var(--transition);
     padding: 0;
+    flex-shrink: 0;
 }
 
 .hamburger-menu:hover {
@@ -1797,7 +1795,7 @@ code {
 
 .hamburger-menu span {
     display: block;
-    width: 20px;
+    width: 18px;
     height: 2px;
     background: var(--text-primary);
     border-radius: 2px;
@@ -1805,7 +1803,7 @@ code {
 }
 
 .hamburger-menu.active span:nth-child(1) {
-    transform: translateY(8px) rotate(45deg);
+    transform: translateY(7px) rotate(45deg);
 }
 
 .hamburger-menu.active span:nth-child(2) {
@@ -1813,7 +1811,7 @@ code {
 }
 
 .hamburger-menu.active span:nth-child(3) {
-    transform: translateY(-8px) rotate(-45deg);
+    transform: translateY(-7px) rotate(-45deg);
 }
 
 /* Sidebar collapsed state */
@@ -1844,19 +1842,7 @@ body[data-sidebar="collapsed"] .sidebar {
     transform: translateX(-280px);
 }
 
-body[data-sidebar="collapsed"] .hamburger-menu {
-    left: var(--space-lg);
-}
-
-body[data-sidebar="expanded"] .hamburger-menu {
-    left: calc(280px + var(--space-lg));
-}
-
-/* Smooth hamburger menu position transition */
-.hamburger-menu {
-    left: calc(280px + var(--space-lg));
-    transition: left var(--transition-slow), background var(--transition), border-color var(--transition);
-}
+/* Hamburger menu is now part of sidebar-brand, no position adjustments needed */
 
 /* Mobile responsive */
 @media (max-width: 768px) {
@@ -1875,14 +1861,6 @@ body[data-sidebar="expanded"] .hamburger-menu {
     
     .app-container {
         grid-template-columns: 1fr;
-    }
-    
-    .hamburger-menu {
-        left: var(--space-lg);
-    }
-    
-    body[data-sidebar="expanded"] .hamburger-menu {
-        left: var(--space-lg);
     }
 }
 
