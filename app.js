@@ -51,6 +51,71 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------------------------------------------------------
+    // 0.5. Global Search Functionality
+    // ---------------------------------------------------------
+    const globalSearch = document.getElementById('global-search');
+
+    if (globalSearch) {
+        globalSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const query = globalSearch.value.trim().toLowerCase();
+                if (!query) return;
+
+                console.log('Search query:', query);
+
+                // Search keywords for different sections
+                const incidentKeywords = ['incident', 'alert', 'cpu', 'latency', 'error', 'spike', 'critical', 'warning'];
+                const chatKeywords = ['chat', 'diagnose', 'diagnosis', 'sre', 'agent', 'gemini', 'ask'];
+                const dbKeywords = ['database', 'mongodb', 'memory', 'collection', 'user', 'session', 'vector', 'db'];
+                const runbookKeywords = ['runbook', 'manual', 'wiki', 'guide', 'document', 'ingest', 'upload', 'embed'];
+
+                // Determine which tab to navigate to
+                let targetTab = null;
+
+                if (incidentKeywords.some(keyword => query.includes(keyword))) {
+                    targetTab = 'incident-command';
+                } else if (chatKeywords.some(keyword => query.includes(keyword))) {
+                    targetTab = 'diagnostic-chat';
+                } else if (dbKeywords.some(keyword => query.includes(keyword))) {
+                    targetTab = 'memory-core';
+                } else if (runbookKeywords.some(keyword => query.includes(keyword))) {
+                    targetTab = 'runbook-ingester';
+                } else {
+                    // Default: use chat for general queries
+                    targetTab = 'diagnostic-chat';
+                }
+
+                // Navigate to the appropriate tab
+                if (targetTab) {
+                    switchTab(targetTab);
+
+                    // If navigating to chat, populate the chat input with the query
+                    if (targetTab === 'diagnostic-chat') {
+                        setTimeout(() => {
+                            const chatInput = document.getElementById('chat-user-input');
+                            if (chatInput) {
+                                chatInput.value = globalSearch.value;
+                                chatInput.focus();
+                            }
+                        }, 100);
+                    }
+                }
+
+                // Clear search
+                globalSearch.value = '';
+            }
+        });
+
+        // Add search icon click handler
+        const searchIcon = document.querySelector('.search-icon');
+        if (searchIcon) {
+            searchIcon.addEventListener('click', () => {
+                globalSearch.focus();
+            });
+        }
+    }
+
+    // ---------------------------------------------------------
     // 1. Navigation Tab Switching System
     // ---------------------------------------------------------
     const navItems = document.querySelectorAll('.nav-item');
