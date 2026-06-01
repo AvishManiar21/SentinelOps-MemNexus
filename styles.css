@@ -1493,6 +1493,55 @@ code {
     margin: 0;
 }
 
+/* Webhook Tester Card */
+.webhook-tester-card {
+    margin-top: var(--space-lg);
+}
+
+.webhook-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.webhook-url-display {
+    background: var(--bg-dark);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    border: 1px solid var(--border-color);
+}
+
+.webhook-url-display code {
+    color: var(--claude-orange);
+    font-size: 0.85rem;
+    word-break: break-all;
+}
+
+.webhook-response {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.webhook-response h4 {
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-sm);
+}
+
+.webhook-response pre {
+    margin: 0;
+    padding: var(--space-sm);
+    background: var(--bg-elevated);
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
 /* ==============================================================================
    CHAT INTERFACE - Claude Design
    ============================================================================== */

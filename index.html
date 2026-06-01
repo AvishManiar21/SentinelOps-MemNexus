@@ -141,6 +141,21 @@
                             </div>
                             <p>Awaiting observability alert webhook to execute autonomous root cause analysis and GitLab merge requests.</p>
                         </div>
+
+                        <!-- Webhook Alert Tester -->
+                        <div class="glass-card webhook-tester-card">
+                            <h3 class="card-title">🔔 Webhook Alert Tester</h3>
+                            <p class="webhook-description">Test the observability webhook endpoint with a sample alert payload.</p>
+                            <div class="webhook-url-display">
+                                <strong>Endpoint:</strong>
+                                <code id="webhook-url">Loading...</code>
+                            </div>
+                            <button class="primary-btn btn-sm" id="test-webhook-btn">Send Test Alert</button>
+                            <div class="webhook-response" id="webhook-response" style="display: none;">
+                                <h4>Response:</h4>
+                                <pre id="webhook-response-text"></pre>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

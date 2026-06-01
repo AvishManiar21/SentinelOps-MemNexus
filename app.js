@@ -485,6 +485,64 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ---------------------------------------------------------
+    // 7. Webhook Alert Tester
+    // ---------------------------------------------------------
+    const webhookUrlDisplay = document.getElementById('webhook-url');
+    const testWebhookBtn = document.getElementById('test-webhook-btn');
+    const webhookResponse = document.getElementById('webhook-response');
+    const webhookResponseText = document.getElementById('webhook-response-text');
+
+    // Display webhook URL
+    if (webhookUrlDisplay) {
+        webhookUrlDisplay.textContent = `${API_BASE}/api/webhook/alert`;
+    }
+
+    if (testWebhookBtn) {
+        testWebhookBtn.addEventListener('click', async () => {
+            try {
+                testWebhookBtn.setAttribute('disabled', 'true');
+                testWebhookBtn.textContent = 'Sending Alert...';
+
+                // Sample webhook payload
+                const payload = {
+                    alert_name: "CPU Usage Critical",
+                    severity: "CRITICAL",
+                    description: "Server us-central1-a is experiencing 98.4% CPU usage",
+                    source: "SentinelOps-Dashboard-Test",
+                    timestamp: new Date().toISOString()
+                };
+
+                const res = await fetch(`${API_BASE}/api/webhook/alert`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                testWebhookBtn.removeAttribute('disabled');
+                testWebhookBtn.textContent = 'Send Test Alert';
+
+                const data = await res.json();
+
+                // Show response
+                webhookResponse.style.display = 'block';
+                webhookResponseText.textContent = JSON.stringify(data, null, 2);
+
+                if (res.ok) {
+                    console.log('Webhook test successful:', data);
+                } else {
+                    console.error('Webhook test failed:', data);
+                }
+
+            } catch (err) {
+                testWebhookBtn.removeAttribute('disabled');
+                testWebhookBtn.textContent = 'Send Test Alert';
+                webhookResponse.style.display = 'block';
+                webhookResponseText.textContent = `Error: ${err.message}`;
+            }
+        });
+    }
+
     // Auto-fetch data on startup
     fetchDatabaseCollections();
 });
