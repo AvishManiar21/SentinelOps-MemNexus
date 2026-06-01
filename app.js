@@ -303,10 +303,26 @@ document.addEventListener('DOMContentLoaded', () => {
         modelSelector.value = savedModel;
     }
 
-    // Save model preference when changed
+    // Save model preference when changed and update description
+    const modelDescription = document.getElementById('model-description');
+
+    function updateModelDescription(model) {
+        if (!modelDescription) return;
+
+        if (model === 'gemini-2.5-pro') {
+            modelDescription.textContent = 'Advanced reasoning for complex diagnostics';
+        } else {
+            modelDescription.textContent = 'Optimized for speed and cost-efficiency';
+        }
+    }
+
     if (modelSelector) {
+        // Set initial description
+        updateModelDescription(modelSelector.value);
+
         modelSelector.addEventListener('change', () => {
             localStorage.setItem('selectedModel', modelSelector.value);
+            updateModelDescription(modelSelector.value);
             logTerminalLine(`Switched to ${modelSelector.value}`, 'sys');
         });
     }
