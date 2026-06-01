@@ -455,10 +455,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         logIndexerLine(clean, 'success');
                     } else if (clean.includes('Generating 768-dimension')) {
                         logIndexerLine(clean, 'info');
+                    } else if (clean.includes('GCS') || clean.includes('Cloud Storage')) {
+                        logIndexerLine(clean, 'success');
                     } else {
                         logIndexerLine(clean, 'sys');
                     }
                 });
+            }
+
+            // Show GCS backup URL if available
+            if (data.gcs_url && data.gcs_url.startsWith('gs://')) {
+                logIndexerLine(`✓ Backup saved to Google Cloud Storage: ${data.gcs_url}`, 'success');
             }
 
             logIndexerLine(`Pipeline compilation successful. Grounding database synchronized!`, 'success');
