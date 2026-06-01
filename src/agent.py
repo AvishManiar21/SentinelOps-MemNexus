@@ -33,6 +33,7 @@ try:
     from google.genai import types
     from google.genai.types import HttpOptions
     from google.cloud import secretmanager
+    from google.cloud import storage
     from pymongo import MongoClient
     from flask import Flask, request, jsonify
     from flask_cors import CORS
@@ -102,6 +103,54 @@ try:
 except Exception as e:
     logger.error(f"Gen AI Client initialization failed: {e}. Ensure 'gcloud auth application-default login' is run.")
     sys.exit(1)
+
+# ==============================================================================
+# GOOGLE CLOUD STORAGE: RUNBOOK BACKUP & PERSISTENCE
+# ==============================================================================
+GCS_BUCKET_NAME = os.getenv("GCS_BUCKET_NAME", f"{GCP_PROJECT}-runbooks")
+gcs_client = None
+
+try:
+    gcs_client = storage.Client(project=GCP_PROJECT)
+    logger.info(f"Google Cloud Storage client initialized for project: {GCP_PROJECT}")
+except Exception as e:
+    logger.warning(f"Failed to initialize GCS client: {e}. Runbook backups will be disabled.")
+
+def upload_to_gcs(title: str, content: str) -> str:
+    """Uploads runbook content to Google Cloud Storage for backup and persistence.
+
+    Args:
+        title: The title/filename of the runbook
+        content: The text content to store
+
+    Returns:
+        The public GCS URL or error message
+    """
+    if gcs_client is None:
+        return "GCS not available"
+
+    try:
+        # Get or create bucket
+        bucket = gcs_client.bucket(GCS_BUCKET_NAME)
+        if not bucket.exists():
+            bucket = gcs_client.create_bucket(GCS_BUCKET_NAME, location=GCP_LOCATION)
+            logger.info(f"Created new GCS bucket: {GCS_BUCKET_NAME}")
+
+        # Create blob with timestamp
+        from datetime import datetime
+        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        safe_title = title.replace(" ", "_").replace("/", "-")
+        blob_name = f"runbooks/{timestamp}_{safe_title}.txt"
+
+        blob = bucket.blob(blob_name)
+        blob.upload_from_string(content, content_type='text/plain')
+
+        gcs_url = f"gs://{GCS_BUCKET_NAME}/{blob_name}"
+        logger.info(f"Successfully uploaded runbook to GCS: {gcs_url}")
+        return gcs_url
+    except Exception as e:
+        logger.error(f"Failed to upload to GCS: {e}")
+        return f"GCS upload failed: {str(e)}"
 
 # ==============================================================================
 # PHASE 2 & 3: ACTION MECHANISMS & DATA GROUNDING TOOLS
@@ -489,39 +538,46 @@ def api_runbook_ingest():
         data = request.get_json() or {}
         title = data.get("title")
         content = data.get("content")
-        
+
         if not title or not content:
             return jsonify({"error": "Title and Content are required fields."}), 400
-            
+
         logger.info(f"API Ingestion: Uploading runbook '{title}'...")
-        
+
         # Clear log capturer string
         get_captured_traces()
-        
+
         if db is None:
             raise ValueError("MongoDB cluster connection is offline. Ingestion unavailable.")
-            
-        # Embed runbook text using text-embedding-004
+
+        # Step 1: Backup to Google Cloud Storage first
+        logger.info("Backing up runbook to Google Cloud Storage...")
+        gcs_url = upload_to_gcs(title, content)
+
+        # Step 2: Embed runbook text using text-embedding-004
         logger.info("Generating 768-dimension semantic vector via Google text-embedding-004...")
         emb_res = ai_client.models.embed_content(
             model="text-embedding-004",
             contents=content
         )
         vector = emb_res.embeddings[0].values
-        
-        # Insert document chunk
+
+        # Step 3: Insert document chunk with GCS reference
         payload = {
             "title": title,
             "content": content,
-            "embedding": vector
+            "embedding": vector,
+            "gcs_backup_url": gcs_url
         }
         res = db.knowledge_vectors.insert_one(payload)
         logger.info(f"MongoDB Document indexed successfully! Collection: knowledge_vectors, Doc ID: {res.inserted_id}")
-        
+        logger.info(f"GCS Backup URL: {gcs_url}")
+
         traces = get_captured_traces()
         return jsonify({
             "success": True,
             "doc_id": str(res.inserted_id),
+            "gcs_url": gcs_url,
             "traces": traces
         })
     except Exception as e:
