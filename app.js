@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (err) {
             chatMessages.removeChild(thinkingBubble);
-            appendChatMessage('agent', `❌ <strong>API Server Error</strong>: Could not communicate with SentinelOps backend. Ensure <code>python agent.py</code> is running on your machine.`);
+            appendChatMessage('agent', `❌ <strong>API Server Error</strong>: Could not communicate with SentinelOps backend. Ensure <code>python src/agent.py</code> is running on your machine.`);
             logTerminalLine(`Failed to query SRE API: ${err.message}`, 'error');
         }
     }

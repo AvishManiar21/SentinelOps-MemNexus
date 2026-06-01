@@ -8,6 +8,29 @@ This project represents a fully compliant end-to-end integration covering all 5 
 
 ---
 
+## 📁 Project Structure
+
+```
+SentinelOps-MemNexus/
+├── src/                    # Backend Python code
+│   ├── agent.py           # Flask API server with Gemini integration
+│   └── index_docs.py      # MongoDB document ingestion script
+├── docs/                   # Documentation
+│   ├── DEPLOYMENT.md      # Cloud Run deployment guide
+│   ├── SECURITY.md        # Security & credential management
+│   └── TEST-DEPLOYMENT.md # Post-deployment testing guide
+├── index.html             # Main dashboard (GitHub Pages)
+├── app.js                 # Frontend JavaScript controller
+├── styles.css             # Claude-inspired UI styles
+├── config.js              # Environment detection & API config
+├── deploy.ps1             # Secure deployment script
+├── Dockerfile             # Container configuration
+├── requirements.txt       # Python dependencies
+└── .env.example           # Environment variable template
+```
+
+---
+
 ## 🛠️ Step-by-Step Hackathon Roadmap
 
 ### 📦 Phase 1: Core Frameworks & Environment
@@ -49,21 +72,13 @@ To abide by Phase 4 security requirements, the agent implements dynamic credenti
 3. Configure `USE_SECRET_MANAGER=true` in your `.env` file to retrieve the URI dynamically at runtime instead of hardcoding it.
 
 ### 🚀 Phase 5: Deployment & Safety Guardrails
-1. **Safety Filters**: The model uses strict configurations in `agent.py` setting high-integrity filters against hate speech, harassment, and dangerous content.
-2. **Containerization**: To host your agent backend on **Cloud Run**, compile the application into a standard Docker image:
-   ```dockerfile
-   FROM python:3.9-slim
-   WORKDIR /app
-   COPY requirements.txt .
-   RUN pip install -r requirements.txt
-   COPY . .
-   EXPOSE 8080
-   CMD ["python", "agent.py"]
+1. **Safety Filters**: The model uses strict configurations in `src/agent.py` setting high-integrity filters against hate speech, harassment, and dangerous content.
+2. **Containerization**: The application is containerized using Docker (see `Dockerfile`). The deployment script handles building and deploying to Cloud Run.
+3. **Deploy to Cloud Run**: Use the secure deployment script:
+   ```powershell
+   .\deploy.ps1 YOUR_MONGODB_PASSWORD
    ```
-3. **Deploy to Cloud Run**: Run the following command using GCP CLI:
-   ```bash
-   gcloud run deploy memnexus-agent --source . --region us-central1 --allow-unauthenticated
-   ```
+   For detailed deployment instructions, see `docs/DEPLOYMENT.md`.
 
 ---
 
@@ -84,7 +99,7 @@ To abide by Phase 4 security requirements, the agent implements dynamic credenti
 ### 1. Run the Python Agent Console
 Run the main script to start talking to the SRE/Enterprise memory agent:
 ```bash
-python agent.py
+python src/agent.py
 ```
 Type queries and inspect how your MongoDB collections update dynamically behind the scenes!
 

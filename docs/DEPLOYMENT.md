@@ -20,14 +20,14 @@ All environment detection is handled in:
 
 ## ☁️ Cloud Run (Backend API)
 
-### Deployment Command (PowerShell)
+### Deployment with Secure Script (Recommended)
 
 ```powershell
 # Replace <YOUR_NEW_PASSWORD> with your actual MongoDB password
-gcloud run deploy sentinelops-api --source . --region us-central1 --allow-unauthenticated --set-env-vars "GCP_PROJECT_ID=avish-memnexus-2026,GCP_LOCATION=us-central1,GEMINI_MODEL=gemini-2.5-flash,USE_SECRET_MANAGER=false,MONGODB_URI=mongodb+srv://dbuser:<YOUR_NEW_PASSWORD>@cluster0.qajn3ij.mongodb.net/?appName=Cluster0"
+.\deploy.ps1 <YOUR_NEW_PASSWORD>
 ```
 
-**⚠️ SECURITY NOTE**: Never commit your actual MongoDB password to the repository. Use Secret Manager for production (see below).
+**⚠️ SECURITY NOTE**: Never commit your actual MongoDB password to the repository. For additional security options, see `docs/SECURITY.md`.
 
 ### Expected Output
 ```
@@ -59,7 +59,7 @@ python -m http.server 8000
 
 ### Backend (Local)
 ```bash
-python agent.py
+python src/agent.py
 # API runs on: http://localhost:5000
 ```
 

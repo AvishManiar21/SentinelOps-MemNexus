@@ -191,7 +191,7 @@ Measure-Command { curl https://sentinelops-api-XXXXXXXXXX-uc.a.run.app/ }
 
 **Fix:**
 ```powershell
-# Verify CORS is enabled in agent.py
+# Verify CORS is enabled in src/agent.py
 # Should see: CORS(app)
 ```
 
@@ -221,7 +221,7 @@ Measure-Command { curl https://sentinelops-api-XXXXXXXXXX-uc.a.run.app/ }
 **Issue:** Collections are empty
 
 **Fix:**
-1. Run `python index_docs.py` locally first
+1. Run `python src/index_docs.py` locally first
 2. Or use Runbook Ingester to add documents
 
 ---

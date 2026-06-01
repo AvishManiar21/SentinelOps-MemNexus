@@ -15,12 +15,9 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY agent.py .
-COPY index_docs.py .
-COPY index.html .
-COPY app.js .
-COPY styles.css .
+# Copy backend application code
+COPY src/agent.py agent.py
+COPY src/index_docs.py index_docs.py
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1

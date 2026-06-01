@@ -28,14 +28,14 @@ Your MongoDB credentials were accidentally committed to the public repository. F
 
 ### **Option A: Secure Script (Recommended for Quick Deploy)**
 
-Use the secure deployment script that prompts for your password:
+Use the secure deployment script with your password as parameter:
 
 ```powershell
-.\deploy-secure.ps1
+.\deploy.ps1 <YOUR_NEW_PASSWORD>
 ```
 
 This script:
-- ✅ Prompts for password (hidden input)
+- ✅ Takes password as parameter
 - ✅ Never stores password on disk
 - ✅ Clears password from memory after deployment
 - ✅ Safe for repeated use
