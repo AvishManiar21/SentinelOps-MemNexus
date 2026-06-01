@@ -34,6 +34,7 @@ try:
     from google.genai.types import HttpOptions
     from google.cloud import secretmanager
     from google.cloud import storage
+    from google.cloud import logging as cloud_logging
     from pymongo import MongoClient
     from flask import Flask, request, jsonify
     from flask_cors import CORS
@@ -103,6 +104,40 @@ try:
 except Exception as e:
     logger.error(f"Gen AI Client initialization failed: {e}. Ensure 'gcloud auth application-default login' is run.")
     sys.exit(1)
+
+# ==============================================================================
+# GOOGLE CLOUD LOGGING: ENTERPRISE AUDIT TRAILS
+# ==============================================================================
+cloud_logger = None
+
+try:
+    logging_client = cloud_logging.Client(project=GCP_PROJECT)
+    cloud_logger = logging_client.logger("sentinelops-agent")
+    logger.info(f"Google Cloud Logging initialized for project: {GCP_PROJECT}")
+except Exception as e:
+    logger.warning(f"Failed to initialize Cloud Logging: {e}. Audit trails will use local logging only.")
+
+def log_to_cloud(event_type: str, message: str, severity: str = "INFO", **metadata):
+    """Logs structured events to Google Cloud Logging for enterprise audit trails.
+
+    Args:
+        event_type: Type of event (e.g., "chat_request", "vector_search", "diagnosis")
+        message: Human-readable log message
+        severity: Log severity (DEFAULT, INFO, WARNING, ERROR, CRITICAL)
+        **metadata: Additional structured data to log
+    """
+    if cloud_logger is None:
+        return
+
+    try:
+        struct_data = {
+            "event_type": event_type,
+            "message": message,
+            **metadata
+        }
+        cloud_logger.log_struct(struct_data, severity=severity)
+    except Exception as e:
+        logger.warning(f"Failed to write to Cloud Logging: {e}")
 
 # ==============================================================================
 # GOOGLE CLOUD STORAGE: RUNBOOK BACKUP & PERSISTENCE
@@ -203,6 +238,17 @@ def search_knowledge_base(query: str) -> str:
         for i, r in enumerate(results):
             formatted_results.append(f"[{i+1}] Title: {r.get('title')}\nContent: {r.get('content')}\nRelevance: {r.get('score'):.4f}\n")
         logger.info(f"RAG search returning {len(results)} matching manuals.")
+
+        # Log vector search to Cloud Logging
+        log_to_cloud(
+            event_type="vector_search",
+            message=f"Vector search executed for query",
+            severity="INFO",
+            query_preview=query[:100],
+            results_count=len(results),
+            top_score=results[0].get('score', 0) if results else 0
+        )
+
         return "\n---\n".join(formatted_results)
     except Exception as e:
         logger.error(f"Error querying vector search: {e}")
@@ -429,6 +475,17 @@ def api_chat():
         # Persist memory metrics
         save_chat_history(user_id, message, response.text)
 
+        # Log to Cloud Logging for audit trail
+        log_to_cloud(
+            event_type="chat_request",
+            message=f"User {user_id} sent chat message",
+            severity="INFO",
+            user_id=user_id,
+            model=model,
+            query_preview=message[:100],
+            response_length=len(response.text)
+        )
+
         # Capture operations logs
         traces = get_captured_traces()
 
@@ -572,6 +629,18 @@ def api_runbook_ingest():
         res = db.knowledge_vectors.insert_one(payload)
         logger.info(f"MongoDB Document indexed successfully! Collection: knowledge_vectors, Doc ID: {res.inserted_id}")
         logger.info(f"GCS Backup URL: {gcs_url}")
+
+        # Log runbook ingestion to Cloud Logging
+        log_to_cloud(
+            event_type="runbook_ingestion",
+            message=f"Runbook '{title}' ingested successfully",
+            severity="INFO",
+            runbook_title=title,
+            doc_id=str(res.inserted_id),
+            gcs_url=gcs_url,
+            content_length=len(content),
+            vector_dimensions=len(vector)
+        )
 
         traces = get_captured_traces()
         return jsonify({
