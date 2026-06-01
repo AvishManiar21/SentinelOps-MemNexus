@@ -548,7 +548,19 @@ def api_diagnose():
             "# Incident: " + description + "\n"
             "# Resolution: No manual code changes required. Restart service."
         )
-        
+
+        # Log incident diagnosis to Cloud Logging
+        log_to_cloud(
+            event_type="incident_diagnosis",
+            message=f"Generated diagnosis for incident: {incident_id}",
+            severity="WARNING",
+            user_id=user_id,
+            model=model,
+            incident_id=incident_id,
+            incident_description=description,
+            has_hotfix=diff_match is not None
+        )
+
         traces = get_captured_traces()
         return jsonify({
             "diagnosis": diagnosis_text,
@@ -560,6 +572,91 @@ def api_diagnose():
         return jsonify({
             "error": str(e),
             "traces": get_captured_traces()
+        }), 500
+
+@app.route('/api/webhook/alert', methods=['POST'])
+def api_webhook_alert():
+    """Public webhook endpoint for receiving observability alerts.
+
+    Accepts JSON payloads from monitoring systems (Dynatrace, Datadog, etc.)
+    and triggers autonomous incident diagnosis.
+    """
+    try:
+        data = request.get_json() or {}
+
+        # Extract alert details (supports various monitoring tool formats)
+        alert_name = data.get("alert_name") or data.get("title") or data.get("name") or "Unknown Alert"
+        severity = data.get("severity") or data.get("priority") or "WARNING"
+        description = data.get("description") or data.get("message") or data.get("details") or "No description provided"
+        source = data.get("source") or data.get("origin") or "webhook"
+        timestamp = data.get("timestamp") or data.get("time") or None
+
+        logger.info(f"Webhook Alert Received: {alert_name} from {source}")
+
+        # Log webhook to Cloud Logging
+        log_to_cloud(
+            event_type="webhook_alert_received",
+            message=f"Alert webhook received: {alert_name}",
+            severity=severity,
+            alert_name=alert_name,
+            source=source,
+            description=description,
+            timestamp=timestamp,
+            raw_payload=data
+        )
+
+        # Trigger autonomous diagnosis
+        logger.info("Triggering autonomous incident diagnosis...")
+        get_captured_traces()
+
+        system_prompt = (
+            f"You are SentinelOps AI SRE Agent. An observability alert has been triggered:\n"
+            f"Alert: {alert_name}\n"
+            f"Severity: {severity}\n"
+            f"Description: {description}\n\n"
+            f"Search the knowledge base for relevant runbooks and provide a diagnosis."
+        )
+
+        response = ai_client.models.generate_content(
+            model=GEMINI_MODEL,
+            contents=f"Alert: {alert_name}. {description}. Diagnose this issue.",
+            config=types.GenerateContentConfig(
+                tools=[search_knowledge_base],
+                safety_settings=safety_settings,
+                system_instruction=system_prompt
+            )
+        )
+
+        diagnosis = response.text
+        traces = get_captured_traces()
+
+        # Log diagnosis result
+        log_to_cloud(
+            event_type="webhook_diagnosis_completed",
+            message=f"Completed diagnosis for alert: {alert_name}",
+            severity="INFO",
+            alert_name=alert_name,
+            diagnosis_length=len(diagnosis)
+        )
+
+        return jsonify({
+            "status": "processed",
+            "alert_name": alert_name,
+            "diagnosis": diagnosis,
+            "traces": traces
+        })
+
+    except Exception as e:
+        logger.error(f"Webhook processing error: {e}")
+        log_to_cloud(
+            event_type="webhook_error",
+            message=f"Webhook processing failed: {str(e)}",
+            severity="ERROR",
+            error=str(e)
+        )
+        return jsonify({
+            "status": "error",
+            "error": str(e)
         }), 500
 
 @app.route('/api/db/collections', methods=['GET'])
