@@ -222,6 +222,7 @@ code {
     margin-bottom: var(--space-2xl);
     padding-bottom: var(--space-lg);
     border-bottom: 1px solid var(--border-color);
+    padding-left: 48px; /* Space for hamburger menu */
 }
 
 .brand-logo {
@@ -1770,21 +1771,24 @@ code {
    ============================================================================== */
 
 .hamburger-menu {
-    position: relative;
-    width: 36px;
-    height: 36px;
+    position: fixed;
+    top: var(--space-xl);
+    left: var(--space-lg);
+    width: 40px;
+    height: 40px;
     background: var(--bg-elevated);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     cursor: pointer;
-    transition: var(--transition);
+    transition: all var(--transition-slow);
     padding: 0;
-    flex-shrink: 0;
+    z-index: 1001;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .hamburger-menu:hover {
@@ -1795,15 +1799,20 @@ code {
 
 .hamburger-menu span {
     display: block;
-    width: 18px;
+    width: 20px;
     height: 2px;
     background: var(--text-primary);
     border-radius: 2px;
     transition: var(--transition);
 }
 
+/* Position hamburger inside sidebar when expanded */
+body[data-sidebar="expanded"] .hamburger-menu {
+    left: calc(var(--space-lg) + 8px);
+}
+
 .hamburger-menu.active span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
+    transform: translateY(8px) rotate(45deg);
 }
 
 .hamburger-menu.active span:nth-child(2) {
@@ -1811,7 +1820,20 @@ code {
 }
 
 .hamburger-menu.active span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* When sidebar is collapsed, show X icon */
+body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(2) {
+    opacity: 0;
+}
+
+body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
 }
 
 /* Sidebar collapsed state */
