@@ -21,7 +21,7 @@ SentinelOps-MemNexus/
 │   └── TEST-DEPLOYMENT.md # Post-deployment testing guide
 ├── index.html             # Main dashboard (GitHub Pages)
 ├── app.js                 # Frontend JavaScript controller
-├── styles.css             # Claude-inspired UI styles
+├── styles.css             # Modern UI styles
 ├── config.js              # Environment detection & API config
 ├── deploy.ps1             # Secure deployment script
 ├── Dockerfile             # Container configuration
