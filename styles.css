@@ -198,10 +198,8 @@ code {
     animation-delay: -14s;
 }
 
-/* App Layout Grid */
+/* App Layout Container */
 .app-container {
-    display: grid;
-    grid-template-columns: 280px 1fr;
     min-height: 100vh;
     overflow-x: hidden;
     position: relative;
@@ -383,6 +381,7 @@ code {
     overflow-x: hidden;
     max-width: 100%;
     margin-left: 280px;
+    transition: margin-left var(--transition-slow);
 }
 
 /* Header */
@@ -2271,13 +2270,7 @@ body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(3) {
 }
 
 /* Adjust main content when sidebar is collapsed */
-.app-container {
-    transition: grid-template-columns var(--transition-slow);
-}
-
-.sidebar.collapsed ~ .app-container {
-    grid-template-columns: 0 1fr;
-}
+/* Spacing handled smoothly by margin-left transition on .main-content */
 
 /* Alternative: Use data attribute for cleaner state management */
 body[data-sidebar="collapsed"] .sidebar {
@@ -2306,9 +2299,7 @@ body[data-sidebar="collapsed"] .main-content {
         transform: translateX(0);
     }
 
-    .app-container {
-        grid-template-columns: 1fr;
-    }
+    /* Layout naturally adjusts as a block element on mobile */
 
     .main-content {
         margin-left: 0;
