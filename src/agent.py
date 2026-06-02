@@ -753,6 +753,120 @@ def api_runbook_ingest():
             "traces": get_captured_traces()
         }), 500
 
+@app.route('/api/runbook/ingest-library', methods=['POST'])
+def api_ingest_sre_library():
+    """Batch ingestion endpoint for the SRE runbook library.
+
+    Ingests 10 pre-defined SRE runbooks into the knowledge_vectors collection.
+    This is useful for initializing the database with sample data.
+    """
+    try:
+        logger.info("Starting batch ingestion of SRE runbook library...")
+        get_captured_traces()  # Clear previous traces
+
+        if db is None:
+            raise ValueError("MongoDB cluster connection is offline. Ingestion unavailable.")
+
+        # Define the SRE runbook library
+        sre_library = [
+            {
+                "title": "MongoDB Connection Fault & Pooling Guide",
+                "content": "SRE Incident Guide: When database timeouts or 'connection refused' errors occur on auth-service, SREs must inspect active pooling variables. To optimize throughput, increase connection pool size to 50 in config.json and implement a reconnect retry logic of 3 attempts with exponential backoff."
+            },
+            {
+                "title": "Node.js Out of Memory (OOM) Heap Leak Guide",
+                "content": "SRE Incident Guide: If memory usage on a Node.js API container climbs exponentially to 100%, a heap memory leak is occurring. Inspect the server garbage collection allocation, and modify ecosystem.config.js to include '--max-old-space-size=4096' to increase V8 memory limit to 4GB, then restart PM2."
+            },
+            {
+                "title": "Nginx Reverse Proxy Rate Limiting & DDoS Prevention",
+                "content": "SRE Incident Guide: When server load spikes due to sudden high request volumes or DDoS, configure Nginx limit_req zone to restrict incoming traffic. Edit nginx.conf to add 'limit_req_zone $binary_remote_addr zone=one:10m rate=10r/s;' and apply 'limit_req zone=one burst=5 nodelay;' to protect microservices."
+            },
+            {
+                "title": "Kubernetes Disk Space Exhaustion & Log Rotation",
+                "content": "SRE Incident Guide: When a Kubernetes node status changes to 'DiskPressure' and pod scheduling halts, clean docker system files. Execute 'docker system prune -af' and adjust the log-rotate configuration inside /etc/logrotate.d/docker to limit standard out logs to 10MB per file."
+            },
+            {
+                "title": "Redis Cache Key Eviction & Connection Exhaustion",
+                "content": "SRE Incident Guide: If redis cache hit rates drop below 70% and latency regressions spike, the memory limit is reached. Edit redis.conf to set 'maxmemory 2gb' and set the key eviction policy to 'maxmemory-policy allkeys-lru' to automatically evict least recently used keys."
+            },
+            {
+                "title": "DNS Resolution Failure in Kubernetes Cluster",
+                "content": "SRE Incident Guide: When pods fail to communicate with external APIs with 'Could not resolve host' errors, CoreDNS is failing. Check the CoreDNS pods using 'kubectl get pods -n kube-system -l k8s-app=kube-dns' and execute a roll restart of the coredns deployment to clear cached locks."
+            },
+            {
+                "title": "SSL/TLS Certificate Expiry & Auto-Renewal Failure",
+                "content": "SRE Incident Guide: When browsers display 'Your connection is not private' and HTTPS requests fail, the SSL certificate has expired. Run 'certbot renew' manually on the ingress gateway node and verify that a cron job is configured under crontab to execute certificate checks weekly."
+            },
+            {
+                "title": "Database Replication Lag & Read/Write Splitting",
+                "content": "SRE Incident Guide: If replication lag between primary and secondary database nodes exceeds 5 seconds, read queries will fetch stale data. Implement read/write splitting in your database client, routing all INSERT/UPDATE statements to the primary and SELECT queries to the read-replicas."
+            },
+            {
+                "title": "Dynatrace Server Latency Spike — CPU 98.4% Recovery",
+                "content": "SRE Incident Guide: If an observability alert is received indicating a latency spike of +1200ms and CPU is pegged at 98.4%, SREs must modify server.py (or hotfix.py) to set the request rate-limiting timeout to 5 seconds (5000ms) on connections, preventing the CPU from locks."
+            },
+            {
+                "title": "GCP IAM Access Denied on Cloud Storage Buckets",
+                "content": "SRE Incident Guide: If Cloud Run containers log 'AccessDenied' when writing files to GCS buckets, the Compute Engine Service Account is missing roles. Grant 'roles/storage.admin' to the service account '782741881130-compute@developer.gserviceaccount.com' at the project level."
+            }
+        ]
+
+        ingested_count = 0
+        ingested_ids = []
+
+        for doc in sre_library:
+            logger.info(f"Vectorizing: '{doc['title']}'...")
+
+            try:
+                # Generate embedding
+                emb_res = ai_client.models.embed_content(
+                    model="text-embedding-004",
+                    contents=doc['content']
+                )
+                vector = emb_res.embeddings[0].values
+
+                # Create payload
+                payload = {
+                    "title": doc['title'],
+                    "content": doc['content'],
+                    "embedding": vector
+                }
+
+                # Insert into MongoDB
+                result = db.knowledge_vectors.insert_one(payload)
+                ingested_count += 1
+                ingested_ids.append(str(result.inserted_id))
+                logger.info(f"Successfully indexed: {doc['title']}")
+
+            except Exception as e:
+                logger.error(f"Failed to ingest '{doc['title']}': {e}")
+
+        logger.info(f"Batch ingestion complete! {ingested_count}/{len(sre_library)} runbooks successfully indexed.")
+
+        # Log to Cloud Logging
+        log_to_cloud(
+            event_type="sre_library_ingestion",
+            message=f"SRE library batch ingestion completed: {ingested_count} runbooks",
+            count=ingested_count,
+            total=len(sre_library)
+        )
+
+        traces = get_captured_traces()
+        return jsonify({
+            "success": True,
+            "ingested_count": ingested_count,
+            "total": len(sre_library),
+            "document_ids": ingested_ids,
+            "traces": traces
+        })
+
+    except Exception as e:
+        logger.error(f"Batch ingestion failed: {e}")
+        return jsonify({
+            "error": str(e),
+            "traces": get_captured_traces()
+        }), 500
+
 # ==============================================================================
 # MAIN EXECUTION ROUTINE
 # ==============================================================================
