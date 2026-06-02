@@ -202,6 +202,7 @@ code {
     grid-template-columns: 280px 1fr;
     min-height: 100vh;
     overflow-x: hidden;
+    position: relative;
 }
 
 /* Sidebar Styling */
@@ -211,10 +212,13 @@ code {
     display: flex;
     flex-direction: column;
     padding: var(--space-xl);
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 280px;
     height: 100vh;
     z-index: 100;
+    overflow-y: auto;
 }
 
 .sidebar-brand {
@@ -376,6 +380,7 @@ code {
     min-height: 100vh;
     overflow-x: hidden;
     max-width: 100%;
+    margin-left: 280px;
 }
 
 /* Header */
@@ -2265,12 +2270,12 @@ body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(3) {
 }
 
 /* Alternative: Use data attribute for cleaner state management */
-body[data-sidebar="collapsed"] .app-container {
-    grid-template-columns: 0 1fr;
-}
-
 body[data-sidebar="collapsed"] .sidebar {
     transform: translateX(-280px);
+}
+
+body[data-sidebar="collapsed"] .main-content {
+    margin-left: 0;
 }
 
 /* Hamburger menu is now part of sidebar-brand, no position adjustments needed */
@@ -2281,17 +2286,23 @@ body[data-sidebar="collapsed"] .sidebar {
         position: fixed;
         top: 0;
         left: 0;
+        width: 280px;
         height: 100vh;
         z-index: 999;
         transform: translateX(-280px);
     }
-    
+
     .sidebar.expanded {
         transform: translateX(0);
     }
-    
+
     .app-container {
         grid-template-columns: 1fr;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 24px 20px;
     }
 }
 
