@@ -1,0 +1,22 @@
+# Ignore Git files
+.git/
+.gitignore
+
+# Ignore local python virtual environments (CRUCIAL: Prevents zip timestamp crashes!)
+venv/
+ENV/
+env/
+.venv/
+
+# Ignore local environment secrets
+.env
+.env.*
+
+# Ignore Python caches
+__pycache__/
+*.py[cod]
+
+# Ignore IDE settings
+.vscode/
+.idea/
+.claude/
