@@ -1,10 +1,54 @@
-# 🍃 MemNexus: Context-Aware Enterprise Memory Agent & Portal
+# 🚨 SentinelOps: Autonomous SRE Memory Agent & Portal
 ### Google Cloud Rapid Agent Hackathon Submission (MongoDB Atlas Track)
+
+[![Cloud Run](https://img.shields.io/badge/Cloud%20Run-Deployed-blue?logo=google-cloud)](https://sentinelops-api-yucauzs4lq-uc.a.run.app)
+[![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-green?logo=mongodb)](https://www.mongodb.com/cloud/atlas)
+[![Gemini 2.5](https://img.shields.io/badge/Gemini-2.5%20Flash%20%7C%20Pro-orange?logo=google)](https://ai.google.dev/)
+
+**SentinelOps** (formerly MemNexus) is a production-ready, autonomous SRE (Site Reliability Engineering) agent that combines **Google Cloud's Gemini 2.5 Enterprise Agent Platform** with **MongoDB Atlas Vector Search** to deliver intelligent incident response, semantic document grounding, and persistent memory.
+
+This project represents a fully compliant end-to-end integration covering all 5 core phases of the hackathon requirements with premium production features.
+
 ---
 
-**MemNexus** is a production-ready, context-aware artificial intelligence agent that bridges **Google Cloud's Gemini Enterprise Agent Platform** and **MongoDB Atlas** to implement persistent user memory and semantic document grounding.
+## ✨ Key Features
 
-This project represents a fully compliant end-to-end integration covering all 5 core phases of the hackathon rules.
+### 🤖 AI-Powered Features
+- **Dual Gemini Models**: Switch between Gemini 2.5 Flash (fast) and Pro (deep reasoning)
+- **Semantic Search**: Vector search across 10+ pre-loaded SRE runbooks using 768-dimension embeddings
+- **Context-Aware Chat**: Persistent conversation history with MongoDB storage
+- **Autonomous Diagnostics**: Simulated incident analysis with automated hotfix generation
+
+### 🔍 Advanced Search System
+- **Content Search**: Search across chat history, runbooks, and user profiles
+- **Command Palette**: Quick actions with keyword matching
+- **Smart Suggestions**: Recent searches and popular queries with autocomplete
+- **Live Search**: 300ms debounce with real-time results dropdown
+
+### 🔔 Notification System
+- **Real-time Alerts**: Critical, warning, and info notifications
+- **Notification Panel**: Dropdown with badge counter and pulse animation
+- **Mark as Read**: Click to dismiss individual notifications
+- **Sample Notifications**: CPU alerts, memory warnings, backup status
+
+### 🔗 Webhook Integration
+- **Alert Endpoint**: `/api/webhook/alert` for observability tools (Dynatrace, Datadog)
+- **Webhook Tester**: Built-in UI to test alert payloads
+- **Cloud Logging**: All webhooks logged to Google Cloud Logging
+- **Automated Response**: Trigger autonomous diagnostics from external alerts
+
+### 🧠 MongoDB Integration
+- **Vector Search**: Cosine similarity search with 768-dim embeddings
+- **Three Collections**: `users`, `sessions`, `knowledge_vectors`
+- **Live Database Explorer**: Real-time MongoDB data visualization
+- **Batch Ingestion**: API endpoint to populate 10 SRE runbooks instantly
+
+### 🎨 Modern UI/UX
+- **Glassmorphic Design**: Dark theme with orange accent colors
+- **Fixed Sidebar**: Navigation stays in place while content scrolls
+- **Responsive Layout**: Single scrollbar, no layout displacement
+- **Smooth Animations**: Transitions, hover effects, and scroll behaviors
+- **Notification Bell**: Functional dropdown with unread count
 
 ---
 
