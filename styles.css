@@ -2041,10 +2041,10 @@ code {
 
 .hamburger-menu {
     position: fixed;
-    top: var(--space-xl);
-    left: var(--space-lg);
-    width: 40px;
-    height: 40px;
+    top: 24px;
+    left: 20px;
+    width: 44px;
+    height: 44px;
     background: var(--bg-elevated);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
@@ -2052,7 +2052,7 @@ code {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     cursor: pointer;
     transition: all var(--transition-slow);
     padding: 0;
@@ -2068,8 +2068,8 @@ code {
 
 .hamburger-menu span {
     display: block;
-    width: 20px;
-    height: 2px;
+    width: 22px;
+    height: 2.5px;
     background: var(--text-primary);
     border-radius: 2px;
     transition: var(--transition);
@@ -2077,11 +2077,11 @@ code {
 
 /* Position hamburger inside sidebar when expanded */
 body[data-sidebar="expanded"] .hamburger-menu {
-    left: calc(var(--space-lg) + 8px);
+    left: 24px;
 }
 
 .hamburger-menu.active span:nth-child(1) {
-    transform: translateY(8px) rotate(45deg);
+    transform: translateY(7.5px) rotate(45deg);
 }
 
 .hamburger-menu.active span:nth-child(2) {
@@ -2089,12 +2089,12 @@ body[data-sidebar="expanded"] .hamburger-menu {
 }
 
 .hamburger-menu.active span:nth-child(3) {
-    transform: translateY(-8px) rotate(-45deg);
+    transform: translateY(-7.5px) rotate(-45deg);
 }
 
 /* When sidebar is collapsed, show X icon */
 body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(1) {
-    transform: translateY(8px) rotate(45deg);
+    transform: translateY(7.5px) rotate(45deg);
 }
 
 body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(2) {
@@ -2102,7 +2102,7 @@ body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(2) {
 }
 
 body[data-sidebar="collapsed"] .hamburger-menu span:nth-child(3) {
-    transform: translateY(-8px) rotate(-45deg);
+    transform: translateY(-7.5px) rotate(-45deg);
 }
 
 /* Sidebar collapsed state */
