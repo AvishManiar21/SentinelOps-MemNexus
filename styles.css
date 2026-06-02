@@ -83,6 +83,7 @@ body {
     font-family: var(--font-body);
     min-height: 100vh;
     overflow-x: hidden;
+    overflow-y: auto;
     position: relative;
     line-height: 1.6;
 }
@@ -371,8 +372,7 @@ code {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    overflow-y: auto;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* Header */

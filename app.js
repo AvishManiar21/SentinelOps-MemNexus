@@ -452,6 +452,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Scroll to top when switching tabs to prevent layout displacement
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
         // Trigger dynamic data fetch when opening specific tabs
         if (targetTabId === 'memory-core') {
             fetchDatabaseCollections();
