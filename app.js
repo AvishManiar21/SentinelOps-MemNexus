@@ -51,11 +51,213 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ---------------------------------------------------------
-    // 0.5. Global Search Functionality
+    // 0.5. Global Search Functionality - Content Search + Commands + Suggestions
     // ---------------------------------------------------------
     const globalSearch = document.getElementById('global-search');
+    const searchResults = document.getElementById('search-results');
+    const searchResultsBody = document.getElementById('search-results-body');
+    const searchResultsTitle = document.getElementById('search-results-title');
+    const searchResultsCount = document.getElementById('search-results-count');
+
+    let searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+
+    // Commands palette
+    const commands = [
+        { name: 'Show Latest Incidents', action: () => switchTab('incident-command'), keywords: ['incident', 'alert', 'show'] },
+        { name: 'Open Chat', action: () => switchTab('diagnostic-chat'), keywords: ['chat', 'talk', 'diagnose'] },
+        { name: 'View Database', action: () => switchTab('memory-core'), keywords: ['database', 'mongodb', 'memory'] },
+        { name: 'Upload Runbook', action: () => switchTab('runbook-ingester'), keywords: ['runbook', 'upload', 'ingest'] },
+        { name: 'Clear Chat History', action: () => { document.getElementById('chat-messages-container').innerHTML = ''; }, keywords: ['clear', 'reset', 'delete'] }
+    ];
+
+    async function searchContent(query) {
+        const results = [];
+        const queryLower = query.toLowerCase();
+
+        try {
+            // Fetch database collections
+            const res = await fetch(`${API_BASE}/api/db/collections`);
+            if (res.ok) {
+                const data = await res.json();
+
+                // Search in sessions (chat history)
+                if (data.sessions) {
+                    data.sessions.forEach(session => {
+                        const userMsg = (session.user_message || '').toLowerCase();
+                        const agentResp = (session.agent_response || '').toLowerCase();
+
+                        if (userMsg.includes(queryLower) || agentResp.includes(queryLower)) {
+                            results.push({
+                                type: 'chat',
+                                title: `Chat: ${session.user_message?.substring(0, 50) || 'Conversation'}...`,
+                                preview: session.agent_response?.substring(0, 120) || '',
+                                action: () => switchTab('diagnostic-chat')
+                            });
+                        }
+                    });
+                }
+
+                // Search in runbooks (knowledge vectors)
+                if (data.knowledge_vectors) {
+                    data.knowledge_vectors.forEach(doc => {
+                        const title = (doc.title || '').toLowerCase();
+                        const content = (doc.content || '').toLowerCase();
+
+                        if (title.includes(queryLower) || content.includes(queryLower)) {
+                            results.push({
+                                type: 'runbook',
+                                title: `Runbook: ${doc.title || 'Document'}`,
+                                preview: doc.content?.substring(0, 120) || '',
+                                action: () => switchTab('memory-core')
+                            });
+                        }
+                    });
+                }
+
+                // Search in users
+                if (data.users) {
+                    data.users.forEach(user => {
+                        const username = (user.username || user.user_id || '').toLowerCase();
+
+                        if (username.includes(queryLower)) {
+                            results.push({
+                                type: 'user',
+                                title: `User: ${user.username || user.user_id}`,
+                                preview: user.ai_synthesis_summary || user.project_role || '',
+                                action: () => switchTab('memory-core')
+                            });
+                        }
+                    });
+                }
+            }
+        } catch (err) {
+            console.error('Search error:', err);
+        }
+
+        // Search commands
+        commands.forEach(cmd => {
+            if (cmd.keywords.some(k => queryLower.includes(k)) || cmd.name.toLowerCase().includes(queryLower)) {
+                results.push({
+                    type: 'command',
+                    title: `Command: ${cmd.name}`,
+                    preview: `Execute this action`,
+                    action: cmd.action
+                });
+            }
+        });
+
+        return results.slice(0, 10); // Limit to 10 results
+    }
+
+    function displaySearchResults(results, query) {
+        if (results.length === 0) {
+            searchResultsBody.innerHTML = '<div class="search-no-results">No results found. Try different keywords.</div>';
+            searchResultsTitle.textContent = 'No Results';
+            searchResultsCount.textContent = '';
+        } else {
+            searchResultsTitle.textContent = 'Search Results';
+            searchResultsCount.textContent = `${results.length} found`;
+
+            searchResultsBody.innerHTML = results.map(result => `
+                <div class="search-result-item" data-action="${result.type}">
+                    <div class="search-result-title">
+                        <span class="search-result-type">${result.type}</span>
+                        ${result.title}
+                    </div>
+                    ${result.preview ? `<div class="search-result-preview">${result.preview}</div>` : ''}
+                </div>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.search-result-item').forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    results[index].action();
+                    searchResults.style.display = 'none';
+                    globalSearch.value = '';
+
+                    // Save to history
+                    if (!searchHistory.includes(query)) {
+                        searchHistory.unshift(query);
+                        searchHistory = searchHistory.slice(0, 10);
+                        localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                    }
+                });
+            });
+        }
+
+        searchResults.style.display = 'block';
+    }
+
+    function showSuggestions() {
+        const suggestions = [
+            { type: 'recent', title: 'Recent Searches', items: searchHistory },
+            { type: 'suggestion', title: 'Popular Searches', items: ['incident alerts', 'chat history', 'mongodb users', 'upload runbook'] }
+        ];
+
+        let html = '';
+        suggestions.forEach(section => {
+            if (section.items.length > 0) {
+                html += `<div class="search-suggestions-section">
+                    <div class="search-result-title" style="padding: var(--space-sm) var(--space-lg); background: var(--bg-dark);">
+                        ${section.title}
+                    </div>`;
+                section.items.forEach(item => {
+                    html += `<div class="search-result-item search-suggestion" data-query="${item}">
+                        <div class="search-result-preview">${item}</div>
+                    </div>`;
+                });
+                html += '</div>';
+            }
+        });
+
+        if (html) {
+            searchResultsTitle.textContent = 'Search Suggestions';
+            searchResultsCount.textContent = '';
+            searchResultsBody.innerHTML = html;
+
+            document.querySelectorAll('.search-suggestion').forEach(item => {
+                item.addEventListener('click', () => {
+                    const query = item.dataset.query;
+                    globalSearch.value = query;
+                    performSearch(query);
+                });
+            });
+
+            searchResults.style.display = 'block';
+        }
+    }
+
+    async function performSearch(query) {
+        const results = await searchContent(query);
+        displaySearchResults(results, query);
+    }
 
     if (globalSearch) {
+        // Show suggestions on focus
+        globalSearch.addEventListener('focus', () => {
+            if (!globalSearch.value.trim()) {
+                showSuggestions();
+            }
+        });
+
+        // Live search as you type
+        let searchTimeout;
+        globalSearch.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+
+            if (query.length >= 2) {
+                searchTimeout = setTimeout(() => {
+                    performSearch(query);
+                }, 300);
+            } else if (query.length === 0) {
+                showSuggestions();
+            } else {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        // Keep existing Enter key behavior
         globalSearch.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 const query = globalSearch.value.trim();
@@ -117,6 +319,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 globalSearch.focus();
             });
         }
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!globalSearch.contains(e.target) && !searchResults.contains(e.target) && !e.target.classList.contains('search-icon')) {
+                searchResults.style.display = 'none';
+            }
+        });
     }
 
     // ---------------------------------------------------------
@@ -314,9 +523,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!modelDescription) return;
 
         if (model === 'gemini-2.5-pro') {
-            modelDescription.textContent = 'Advanced reasoning for complex diagnostics';
+            modelDescription.textContent = 'Deep reasoning & analysis';
         } else {
-            modelDescription.textContent = 'Optimized for speed and cost-efficiency';
+            modelDescription.textContent = 'Fast & cost-efficient';
         }
     }
 

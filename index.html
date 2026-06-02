@@ -67,9 +67,20 @@
         <main class="main-content">
             <!-- Header -->
             <header class="app-header">
-                <div class="header-search">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="global-search" placeholder="Search system incidents, database memory, or runbooks...">
+                <div class="header-search-wrapper">
+                    <div class="header-search">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="global-search" placeholder="Search chats, runbooks, users, or type commands...">
+                    </div>
+                    <div class="search-results" id="search-results" style="display: none;">
+                        <div class="search-results-header">
+                            <span id="search-results-title">Search Results</span>
+                            <span id="search-results-count"></span>
+                        </div>
+                        <div class="search-results-body" id="search-results-body">
+                            <!-- Results populated dynamically -->
+                        </div>
+                    </div>
                 </div>
                 <div class="header-actions">
                     <div class="credit-status-badge">
