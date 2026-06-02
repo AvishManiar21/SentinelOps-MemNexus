@@ -544,6 +544,7 @@ code {
     align-items: center;
     justify-content: center;
     gap: var(--space-md);
+    position: relative;
 }
 
 .card-header-with-controls {
@@ -658,11 +659,12 @@ code {
 
 .card-title::before {
     content: '';
+    position: absolute;
+    left: var(--space-lg);
     width: 3px;
     height: 1.5rem;
     background: linear-gradient(180deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);
     border-radius: var(--radius-sm);
-    margin-right: var(--space-sm);
 }
 
 /* Buttons - Modern Design */
