@@ -329,6 +329,107 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------------------------------------------------------
+    // 0.6. Notification Panel System
+    // ---------------------------------------------------------
+    const notificationBtn = document.getElementById('notification-btn');
+    const notificationPanel = document.getElementById('notification-panel');
+    const notificationPanelBody = document.getElementById('notification-panel-body');
+    const notificationCount = document.getElementById('notification-count');
+    const notificationBadge = document.getElementById('notification-badge');
+
+    // Sample notifications data
+    let notifications = [
+        {
+            id: 1,
+            type: 'critical',
+            title: 'CPU Usage Critical',
+            message: 'Server us-central1-a is experiencing 98.4% CPU usage. Immediate action required.',
+            time: '2 min ago',
+            read: false
+        },
+        {
+            id: 2,
+            type: 'warning',
+            title: 'Memory Warning',
+            message: 'Memory usage on production cluster reached 85%. Consider scaling up.',
+            time: '15 min ago',
+            read: false
+        },
+        {
+            id: 3,
+            type: 'info',
+            title: 'Backup Completed',
+            message: 'MongoDB Atlas backup completed successfully. 2.4 GB backed up to GCS.',
+            time: '1 hour ago',
+            read: false
+        }
+    ];
+
+    function renderNotifications() {
+        const unreadCount = notifications.filter(n => !n.read).length;
+
+        // Update badge visibility
+        if (unreadCount > 0) {
+            notificationBadge.style.display = 'block';
+            notificationCount.textContent = `${unreadCount} new`;
+        } else {
+            notificationBadge.style.display = 'none';
+            notificationCount.textContent = 'All read';
+        }
+
+        // Render notification items
+        if (notifications.length === 0) {
+            notificationPanelBody.innerHTML = '<div class="notification-empty">No notifications</div>';
+        } else {
+            notificationPanelBody.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.read ? 'read' : ''}" data-id="${notif.id}">
+                    <div class="notification-item-header">
+                        <span class="notification-title">${notif.title}</span>
+                        <span class="notification-time">${notif.time}</span>
+                    </div>
+                    <div class="notification-message">${notif.message}</div>
+                    <span class="notification-type ${notif.type}">${notif.type}</span>
+                </div>
+            `).join('');
+
+            // Add click handlers to mark as read
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const id = parseInt(item.dataset.id);
+                    const notification = notifications.find(n => n.id === id);
+                    if (notification) {
+                        notification.read = true;
+                        renderNotifications();
+                    }
+                });
+            });
+        }
+    }
+
+    if (notificationBtn && notificationPanel) {
+        // Toggle notification panel
+        notificationBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = notificationPanel.style.display === 'block';
+            notificationPanel.style.display = isVisible ? 'none' : 'block';
+
+            if (!isVisible) {
+                renderNotifications();
+            }
+        });
+
+        // Close notification panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!notificationPanel.contains(e.target) && !notificationBtn.contains(e.target)) {
+                notificationPanel.style.display = 'none';
+            }
+        });
+
+        // Initial render
+        renderNotifications();
+    }
+
+    // ---------------------------------------------------------
     // 1. Navigation Tab Switching System
     // ---------------------------------------------------------
     const navItems = document.querySelectorAll('.nav-item');

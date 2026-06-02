@@ -380,12 +380,14 @@ code {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: var(--space-xl);
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 20px;
 }
 .header-search-wrapper {
     position: relative;
-    width: 500px;
+    flex: 1;
+    max-width: 600px;
 }
 
 .header-search {
@@ -518,7 +520,8 @@ code {
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--space-lg);
+    flex-shrink: 0;
 }
 .credit-status-badge {
     display: flex;
@@ -526,11 +529,12 @@ code {
     gap: var(--space-sm);
     background: linear-gradient(135deg, var(--primary-orange-glow) 0%, transparent 100%);
     border: 1px solid var(--primary-orange-glow);
-    padding: var(--space-sm) var(--space-lg);
+    padding: 10px 18px;
     border-radius: var(--radius-xl);
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--text-primary);
+    white-space: nowrap;
 }
 .credit-dot {
     width: 8px;
@@ -544,8 +548,8 @@ code {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    width: 38px;
-    height: 38px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -553,20 +557,134 @@ code {
     cursor: pointer;
     position: relative;
     transition: var(--transition);
+    font-size: 1.1rem;
 }
 .icon-button:hover {
     background: rgba(255, 255, 255, 0.08);
-    border-color: var(--border-hover);
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 2px var(--primary-orange-glow);
+    transform: scale(1.05);
 }
 .pulse-badge {
     position: absolute;
-    top: 2px;
-    right: 2px;
-    width: 8px;
-    height: 8px;
+    top: 4px;
+    right: 4px;
+    width: 10px;
+    height: 10px;
     background-color: var(--warning);
     border-radius: 50%;
-    box-shadow: 0 0 8px var(--warning);
+    border: 2px solid var(--bg-elevated);
+    box-shadow: 0 0 12px var(--warning);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Notification Panel */
+.notification-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 380px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--primary-orange);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.notification-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-medium);
+}
+
+.notification-panel-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notification-panel-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background: var(--bg-medium);
+    border-left: 3px solid var(--primary-orange);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-xs);
+}
+
+.notification-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.notification-time {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+}
+
+.notification-message {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.notification-type {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    margin-top: var(--space-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.notification-type.critical {
+    background: rgba(234, 67, 53, 0.15);
+    color: #ea4335;
+    border: 1px solid rgba(234, 67, 53, 0.3);
+}
+
+.notification-type.warning {
+    background: var(--primary-orange-glow);
+    color: var(--primary-orange-light);
+    border: 1px solid var(--primary-orange);
+}
+
+.notification-type.info {
+    background: rgba(66, 133, 244, 0.15);
+    color: #4285f4;
+    border: 1px solid rgba(66, 133, 244, 0.3);
+}
+
+.notification-empty {
+    padding: var(--space-xl);
+    text-align: center;
+    color: var(--text-tertiary);
+    font-style: italic;
 }
 
 /* Event Countdown Bar */

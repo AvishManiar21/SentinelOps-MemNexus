@@ -87,10 +87,21 @@
                         <span class="credit-dot"></span>
                         <span class="status-text">System Status: Monitoring</span>
                     </div>
-                    <button class="icon-button notification-btn">
-                        🔔
-                        <span class="pulse-badge"></span>
-                    </button>
+                    <div style="position: relative;">
+                        <button class="icon-button notification-btn" id="notification-btn">
+                            🔔
+                            <span class="pulse-badge" id="notification-badge"></span>
+                        </button>
+                        <div class="notification-panel" id="notification-panel" style="display: none;">
+                            <div class="notification-panel-header">
+                                <h3>Notifications</h3>
+                                <span style="font-size: 0.75rem; color: var(--text-tertiary);" id="notification-count">3 new</span>
+                            </div>
+                            <div class="notification-panel-body" id="notification-panel-body">
+                                <!-- Notifications will be populated here -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </header>
 
