@@ -58,51 +58,55 @@ document.addEventListener('DOMContentLoaded', () => {
     if (globalSearch) {
         globalSearch.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                const query = globalSearch.value.trim().toLowerCase();
+                const query = globalSearch.value.trim();
+                const queryLower = query.toLowerCase();
                 if (!query) return;
 
                 console.log('Search query:', query);
 
                 // Search keywords for different sections
                 const incidentKeywords = ['incident', 'alert', 'cpu', 'latency', 'error', 'spike', 'critical', 'warning'];
-                const chatKeywords = ['chat', 'diagnose', 'diagnosis', 'sre', 'agent', 'gemini', 'ask'];
+                const chatKeywords = ['chat', 'diagnose', 'diagnosis', 'sre', 'agent', 'gemini', 'ask', 'help'];
                 const dbKeywords = ['database', 'mongodb', 'memory', 'collection', 'user', 'session', 'vector', 'db'];
                 const runbookKeywords = ['runbook', 'manual', 'wiki', 'guide', 'document', 'ingest', 'upload', 'embed'];
 
                 // Determine which tab to navigate to
                 let targetTab = null;
+                let shouldPopulateChat = false;
 
-                if (incidentKeywords.some(keyword => query.includes(keyword))) {
+                if (incidentKeywords.some(keyword => queryLower.includes(keyword))) {
                     targetTab = 'incident-command';
-                } else if (chatKeywords.some(keyword => query.includes(keyword))) {
+                } else if (chatKeywords.some(keyword => queryLower.includes(keyword))) {
                     targetTab = 'diagnostic-chat';
-                } else if (dbKeywords.some(keyword => query.includes(keyword))) {
+                    shouldPopulateChat = true;
+                } else if (dbKeywords.some(keyword => queryLower.includes(keyword))) {
                     targetTab = 'memory-core';
-                } else if (runbookKeywords.some(keyword => query.includes(keyword))) {
+                } else if (runbookKeywords.some(keyword => queryLower.includes(keyword))) {
                     targetTab = 'runbook-ingester';
                 } else {
                     // Default: use chat for general queries
                     targetTab = 'diagnostic-chat';
+                    shouldPopulateChat = true;
                 }
+
+                // Clear search first
+                globalSearch.value = '';
 
                 // Navigate to the appropriate tab
                 if (targetTab) {
                     switchTab(targetTab);
 
-                    // If navigating to chat, populate the chat input with the query
-                    if (targetTab === 'diagnostic-chat') {
+                    // Only populate chat input if it's a chat-related query or general query
+                    if (targetTab === 'diagnostic-chat' && shouldPopulateChat) {
                         setTimeout(() => {
                             const chatInput = document.getElementById('chat-user-input');
                             if (chatInput) {
-                                chatInput.value = globalSearch.value;
+                                chatInput.value = query;
                                 chatInput.focus();
                             }
                         }, 100);
                     }
                 }
-
-                // Clear search
-                globalSearch.value = '';
             }
         });
 
