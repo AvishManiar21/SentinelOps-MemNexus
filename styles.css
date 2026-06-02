@@ -649,7 +649,10 @@ code {
     color: var(--text-tertiary);
     font-style: italic;
     white-space: nowrap;
-    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+    flex-shrink: 1;
 }
 
 .card-title::before {
