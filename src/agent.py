@@ -8,6 +8,11 @@ import sys
 import io
 import re
 import logging
+import json
+import subprocess
+import threading
+import atexit
+import platform
 from dotenv import load_dotenv
 
 # Configure robust logging for monitoring
@@ -84,6 +89,207 @@ try:
 except Exception as e:
     logger.error(f"Failed to connect to MongoDB: {e}. Running in simulation/fallback mode.")
     db = None
+
+# ==============================================================================
+# MONGODB MCP SERVER CLIENT (Hackathon Compliance Requirement)
+# ==============================================================================
+class MongoDBMCPClient:
+    """
+    MongoDB MCP Server Client - Hackathon Compliance Integration
+
+    Manages communication with the official MongoDB MCP server (@mongodb-js/mongodb-mcp-server)
+    using JSON-RPC 2.0 protocol over stdin/stdout pipes.
+    """
+
+    def __init__(self, connection_string: str):
+        self.connection_string = connection_string
+        self.process = None
+        self.message_id = 0
+        self.available_tools = []
+        self.lock = threading.Lock()
+        self.initialized = False
+
+    def start(self):
+        """Launch the MongoDB MCP server as a subprocess"""
+        try:
+            logger.info("[MCP] Launching MongoDB MCP server via npx...")
+
+            # Determine if we need shell=True for Windows compatibility
+            is_windows = platform.system() == "Windows"
+
+            # Launch MCP server with connection string
+            # On Windows, npx is npx.cmd and requires shell=True
+            self.process = subprocess.Popen(
+                ["npx", "-y", "@mongodb-js/mongodb-mcp-server"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                bufsize=1,
+                shell=is_windows,
+                env={**os.environ, "MONGODB_URI": self.connection_string}
+            )
+
+            # Perform MCP initialization handshake
+            self._initialize_connection()
+
+            # Register cleanup on exit
+            atexit.register(self.stop)
+
+            logger.info(f"[MCP] MongoDB MCP server started successfully. Available tools: {len(self.available_tools)}")
+            return True
+
+        except FileNotFoundError as e:
+            logger.error(f"[MCP] npx command not found. Please ensure Node.js and npm are installed: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"[MCP] Failed to start MongoDB MCP server: {e}")
+            return False
+
+    def _send_request(self, method: str, params: dict = None) -> dict:
+        """Send JSON-RPC 2.0 request to MCP server"""
+        with self.lock:
+            # Check if process is still alive
+            if self.process and self.process.poll() is not None:
+                logger.error("[MCP] MCP server process has terminated unexpectedly")
+                return None
+
+            self.message_id += 1
+            request = {
+                "jsonrpc": "2.0",
+                "id": self.message_id,
+                "method": method
+            }
+            if params:
+                request["params"] = params
+
+            try:
+                request_json = json.dumps(request) + "\n"
+                self.process.stdin.write(request_json)
+                self.process.stdin.flush()
+
+                # Read response
+                response_line = self.process.stdout.readline()
+                if not response_line:
+                    logger.error("[MCP] Empty response from MCP server")
+                    return None
+
+                response = json.loads(response_line)
+
+                if "error" in response:
+                    logger.error(f"[MCP] Error response: {response['error']}")
+                    return None
+
+                return response.get("result")
+
+            except BrokenPipeError:
+                logger.error("[MCP] Connection to MCP server broken")
+                return None
+            except Exception as e:
+                logger.error(f"[MCP] Request failed for {method}: {e}")
+                return None
+
+    def _initialize_connection(self):
+        """Perform MCP initialization handshake"""
+        try:
+            # Step 1: Initialize
+            init_result = self._send_request("initialize", {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {
+                    "name": "sentinelops-agent",
+                    "version": "1.0.0"
+                }
+            })
+
+            if not init_result:
+                raise Exception("Initialize request failed")
+
+            # Step 2: Initialized notification
+            self._send_request("notifications/initialized")
+
+            # Step 3: List available tools
+            tools_result = self._send_request("tools/list")
+            if tools_result and "tools" in tools_result:
+                self.available_tools = tools_result["tools"]
+                logger.info(f"[MCP] Discovered {len(self.available_tools)} tools from MCP server")
+
+            self.initialized = True
+
+        except Exception as e:
+            logger.error(f"[MCP] Initialization failed: {e}")
+            raise
+
+    def call_tool(self, tool_name: str, arguments: dict) -> str:
+        """Call an MCP tool and return the result"""
+        if not self.initialized:
+            return "MCP server not initialized"
+
+        try:
+            logger.info(f"[MCP] Calling tool: {tool_name} with args: {arguments}")
+
+            result = self._send_request("tools/call", {
+                "name": tool_name,
+                "arguments": arguments
+            })
+
+            if result and "content" in result:
+                # Extract text content from response
+                content_items = result["content"]
+                if isinstance(content_items, list) and len(content_items) > 0:
+                    return content_items[0].get("text", str(result))
+                return str(result)
+
+            return str(result) if result else "No result from MCP server"
+
+        except Exception as e:
+            logger.error(f"[MCP] Tool call failed: {e}")
+            return f"Error: {str(e)}"
+
+    def list_tools(self) -> list:
+        """Return list of available tools"""
+        return self.available_tools
+
+    def stop(self):
+        """Stop the MCP server subprocess"""
+        if self.process:
+            try:
+                # Close stdin if still open
+                if self.process.stdin and not self.process.stdin.closed:
+                    self.process.stdin.close()
+
+                # Terminate gracefully
+                self.process.terminate()
+
+                try:
+                    self.process.wait(timeout=5)
+                    logger.info("[MCP] MongoDB MCP server stopped gracefully")
+                except subprocess.TimeoutExpired:
+                    logger.warning("[MCP] MCP server did not terminate gracefully, forcing kill")
+                    self.process.kill()
+                    self.process.wait()
+                    logger.info("[MCP] MongoDB MCP server killed")
+
+            except Exception as e:
+                logger.error(f"[MCP] Error stopping MCP server: {e}")
+                try:
+                    self.process.kill()
+                except:
+                    pass
+
+# Initialize MongoDB MCP Client
+mcp_client = None
+if db and MONGO_URI:
+    try:
+        mcp_client = MongoDBMCPClient(MONGO_URI)
+        if mcp_client.start():
+            logger.info("[MCP] MongoDB MCP integration active for hackathon compliance")
+        else:
+            logger.warning("[MCP] MCP server failed to start, continuing without MCP features")
+            mcp_client = None
+    except Exception as e:
+        logger.warning(f"[MCP] Could not initialize MCP client: {e}")
+        mcp_client = None
 
 # ==============================================================================
 # PHASE 1: INITIALIZE GOOGLE GEN AI SDK (VERTEX AI MODE)
@@ -298,7 +504,7 @@ def load_user_memory(user_id: str) -> str:
 
 def save_chat_history(user_id: str, user_message: str, agent_response: str) -> str:
     """Saves the conversation exchange to MongoDB and aggregates dynamic tags/memory context.
-    
+
     Args:
         user_id: The identifier of the user.
         user_message: The query sent by the user.
@@ -317,7 +523,7 @@ def save_chat_history(user_id: str, user_message: str, agent_response: str) -> s
             "agent_response": agent_response,
             "timestamp": datetime.utcnow().isoformat()
         })
-        
+
         # Update user summary context incrementally
         user_record = db.users.find_one({"user_id": user_id})
         if not user_record:
@@ -338,7 +544,7 @@ def save_chat_history(user_id: str, user_message: str, agent_response: str) -> s
             new_tag = "ActiveCommunicator"
             if new_tag not in existing_tags:
                 existing_tags.append(new_tag)
-                
+
             db.users.update_one(
                 {"user_id": user_id},
                 {
@@ -352,6 +558,36 @@ def save_chat_history(user_id: str, user_message: str, agent_response: str) -> s
     except Exception as e:
         logger.error(f"Failed to write memory: {e}")
         return f"Error writing to MongoDB: {str(e)}"
+
+def execute_mongodb_mcp_tool(tool_name: str, arguments: dict) -> str:
+    """Execute MongoDB MCP server tools for advanced database operations.
+
+    This tool provides direct access to the official MongoDB MCP server for:
+    - Database queries and aggregation pipelines
+    - Schema inspection and collection management
+    - Index operations and performance analysis
+
+    Args:
+        tool_name: Name of the MCP tool to execute (e.g., 'find', 'aggregate', 'listCollections')
+        arguments: Dictionary of tool arguments specific to the chosen tool
+
+    Returns:
+        Result string from the MCP server execution
+    """
+    logger.info(f"[MCP Tool] Triggered: execute_mongodb_mcp_tool('{tool_name}')")
+
+    if not mcp_client or not mcp_client.initialized:
+        logger.warning("[MCP Tool] MCP server not available for this request")
+        return "MCP server not available. Please ensure MongoDB MCP server is running."
+
+    try:
+        logger.info(f"[MCP Tool] Delegating to MongoDB MCP server: {tool_name} with args: {arguments}")
+        result = mcp_client.call_tool(tool_name, arguments)
+        logger.info(f"[MCP Tool] Result received: {result[:200]}..." if len(result) > 200 else f"[MCP Tool] Result: {result}")
+        return result
+    except Exception as e:
+        logger.error(f"[MCP Tool] Execution failed: {e}")
+        return f"Error executing MCP tool '{tool_name}': {str(e)}"
 
 # ==============================================================================
 # PHASE 5: DEPLOYMENT & SAFETY (GUARDRAILS & MODEL SETUP)
@@ -429,10 +665,17 @@ def get_user_chat(user_id, model=None):
     if cache_key not in user_chats:
         mem_init = load_user_memory(user_id)
         logger.info(f"Instantiating model session {model} for {user_id} with grounding tools...")
+
+        # Build tools list - include MCP tool if available
+        tools_list = [search_knowledge_base, load_user_memory, save_chat_history]
+        if mcp_client and mcp_client.initialized:
+            tools_list.append(execute_mongodb_mcp_tool)
+            logger.info(f"[MCP] MongoDB MCP tool registered with Gemini for {user_id}")
+
         user_chats[cache_key] = ai_client.chats.create(
             model=model,
             config=types.GenerateContentConfig(
-                tools=[search_knowledge_base, load_user_memory, save_chat_history],
+                tools=tools_list,
                 safety_settings=safety_settings,
                 system_instruction=(
                     f"You are SentinelOps, the autonomous AI SRE agent. "
@@ -886,10 +1129,17 @@ if __name__ == "__main__":
         
         # Establish dynamic Gen AI chat session using the modern client
         logger.info(f"Instantiating model: {GEMINI_MODEL} with safety settings and MongoDB tools...")
+
+        # Build tools list - include MCP tool if available
+        tools_list = [search_knowledge_base, load_user_memory, save_chat_history]
+        if mcp_client and mcp_client.initialized:
+            tools_list.append(execute_mongodb_mcp_tool)
+            logger.info(f"[MCP] MongoDB MCP tool registered with Gemini CLI mode")
+
         chat = ai_client.chats.create(
             model=GEMINI_MODEL,
             config=types.GenerateContentConfig(
-                tools=[search_knowledge_base, load_user_memory, save_chat_history],
+                tools=tools_list,
                 safety_settings=safety_settings,
                 system_instruction=(
                     f"You are SentinelOps SRE Agent, an advanced enterprise operations assistant. "
