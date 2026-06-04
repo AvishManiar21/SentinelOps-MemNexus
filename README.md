@@ -5,9 +5,11 @@
 [![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-green?logo=mongodb)](https://www.mongodb.com/cloud/atlas)
 [![Gemini 2.5](https://img.shields.io/badge/Gemini-2.5%20Flash%20%7C%20Pro-orange?logo=google)](https://ai.google.dev/)
 
-**SentinelOps** (formerly MemNexus) is a production-ready, autonomous SRE (Site Reliability Engineering) agent that combines **Google Cloud's Gemini 2.5 Enterprise Agent Platform** with **MongoDB Atlas Vector Search** to deliver intelligent incident response, semantic document grounding, and persistent memory.
+**SentinelOps** (formerly MemNexus) is a production-ready, autonomous SRE (Site Reliability Engineering) agent built for the **MongoDB Atlas Track**. It combines **Google Cloud's Gemini 2.5 Enterprise Agent Platform** with **MongoDB Atlas Vector Search** to deliver intelligent incident response, semantic document grounding, and persistent memory.
 
-This project represents a fully compliant end-to-end integration covering all 5 core phases of the hackathon requirements with premium production features.
+This project showcases a complete MongoDB Atlas integration with vector search, real-time data visualization, and semantic grounding across 10+ SRE runbooks.
+
+**🎯 MongoDB Atlas Track Submission** - All core features utilize MongoDB Atlas M0 free tier for vector embeddings, persistent state, and agent memory.
 
 ---
 
@@ -32,16 +34,24 @@ This project represents a fully compliant end-to-end integration covering all 5 
 - **Sample Notifications**: CPU alerts, memory warnings, backup status
 
 ### 🔗 Webhook Integration
-- **Alert Endpoint**: `/api/webhook/alert` for observability tools (Dynatrace, Datadog)
+- **Alert Endpoint**: `/api/webhook/alert` for observability tools
 - **Webhook Tester**: Built-in UI to test alert payloads
 - **Cloud Logging**: All webhooks logged to Google Cloud Logging
 - **Automated Response**: Trigger autonomous diagnostics from external alerts
 
-### 🧠 MongoDB Integration
-- **Vector Search**: Cosine similarity search with 768-dim embeddings
-- **Three Collections**: `users`, `sessions`, `knowledge_vectors`
-- **Live Database Explorer**: Real-time MongoDB data visualization
-- **Batch Ingestion**: API endpoint to populate 10 SRE runbooks instantly
+> **Note**: Dynatrace and GitLab features in the UI are demonstration simulations to showcase the interface design. The core integration is **MongoDB Atlas** (hackathon track).
+
+### 🧠 MongoDB Atlas Integration (Primary Track Feature)
+- **Vector Search Index**: Atlas Vector Search with 768-dimensional embeddings using cosine similarity
+- **Three Production Collections**:
+  - `users` - User profiles and memory tags
+  - `sessions` - Chat history and conversation state
+  - `knowledge_vectors` - Vectorized SRE runbooks with embeddings
+- **Live Database Explorer**: Real-time visualization of all MongoDB collections in UI
+- **Batch Ingestion API**: `/api/runbook/ingest-library` endpoint to populate 10 runbooks
+- **Semantic Grounding**: Agent searches runbooks using vector similarity for contextual responses
+- **Atlas M0 Free Tier**: Fully operational on MongoDB's free tier
+- **Connection Pooling**: Optimized for production workloads
 
 ### 🎨 Modern UI/UX
 - **Glassmorphic Design**: Dark theme with orange accent colors
@@ -208,6 +218,54 @@ python batch_ingest_via_api.py
 
 ---
 
+## 🎖️ MongoDB Atlas Track - Core Integration
+
+### Why MongoDB Atlas?
+
+SentinelOps uses **MongoDB Atlas as the foundational data layer** for all agent memory, state, and semantic search capabilities. Here's the complete integration:
+
+### 1. **Vector Search Implementation**
+```python
+# Atlas Vector Search Index Configuration
+{
+  "fields": [
+    {
+      "numDimensions": 768,
+      "path": "embedding",
+      "similarity": "cosine",
+      "type": "vector"
+    }
+  ]
+}
+```
+
+### 2. **Collections Architecture**
+- **`knowledge_vectors`** - 10 SRE runbooks with 768-dim embeddings from `text-embedding-004`
+- **`sessions`** - All chat conversations with timestamps and user context
+- **`users`** - User profiles with AI-synthesized memory tags
+
+### 3. **Agent Tools Using MongoDB**
+```python
+# Three production tools integrated with Gemini
+1. search_knowledge_base(query: str) → Vector search across runbooks
+2. load_user_memory(user_id: str) → Retrieve user context
+3. save_chat_history(user_id, message, response) → Persist conversations
+```
+
+### 4. **Real-time Data Visualization**
+The dashboard includes a live **MongoDB Memory Core** tab with:
+- User profiles viewer
+- Chat history explorer
+- Vector runbooks browser
+- Real-time collection updates
+
+### 5. **Production Deployment**
+- **Atlas M0 Free Tier** - Fully operational
+- **Network Access** - Configured for Cloud Run connectivity
+- **Connection String** - Securely managed via environment variables
+
+---
+
 ## 📋 Hackathon Compliance
 
 ### ✅ Phase 1: Core Frameworks & Environment
@@ -216,11 +274,21 @@ python batch_ingest_via_api.py
 - Application Default Credentials authentication
 - $100 GCP credits utilized for premium features
 
-### ✅ Phase 2 & 3: Action Mechanisms & MongoDB Atlas
-- Vector Search with 768-dimension embeddings
-- Three MongoDB collections: users, sessions, knowledge_vectors
-- Semantic document retrieval with cosine similarity
-- Real-time database synchronization
+### ✅ Phase 2: Action Mechanisms (Tool Use)
+- Three production MongoDB tools integrated with Gemini:
+  - `search_knowledge_base()` - Vector search function
+  - `load_user_memory()` - User context retrieval
+  - `save_chat_history()` - Conversation persistence
+- Function calling with structured outputs
+
+### ✅ Phase 3: Partner Integration - **MongoDB Atlas Track**
+- **MongoDB Atlas M0** cluster with Vector Search
+- **768-dimension embeddings** using text-embedding-004
+- **Three production collections**: users, sessions, knowledge_vectors
+- **Cosine similarity** semantic search
+- **10 pre-loaded SRE runbooks** with full vectorization
+- **Real-time synchronization** between agent and database
+- **Connection pooling** for production performance
 
 ### ✅ Phase 4: State, Secrets, & Logic Hosting
 - Google Cloud Secret Manager integration
