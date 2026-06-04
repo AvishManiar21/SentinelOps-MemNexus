@@ -115,7 +115,7 @@ class MongoDBMCPClient:
             logger.info("[MCP] Launching MongoDB MCP server via npx...")
 
             # Determine if we need shell=True for Windows compatibility
-            is_windows = platform.system() == "Windows"
+            is_windows = os.name == "nt"
 
             # Launch MCP server with connection string
             # On Windows, npx is npx.cmd and requires shell=True
@@ -123,7 +123,7 @@ class MongoDBMCPClient:
                 ["npx", "-y", "@mongodb-js/mongodb-mcp-server"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
                 text=True,
                 bufsize=1,
                 shell=is_windows,
@@ -279,7 +279,7 @@ class MongoDBMCPClient:
 
 # Initialize MongoDB MCP Client
 mcp_client = None
-if db and MONGO_URI:
+if db is not None and MONGO_URI:
     try:
         mcp_client = MongoDBMCPClient(MONGO_URI)
         if mcp_client.start():
