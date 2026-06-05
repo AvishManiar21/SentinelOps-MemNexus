@@ -122,12 +122,25 @@ class MongoDBMCPClient:
                 ["npx", "-y", "@mongodb-js/mongodb-mcp-server"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,  # Capture stderr to log errors
                 text=True,
                 bufsize=1,
                 shell=is_windows,
                 env={**os.environ, "MONGODB_URI": self.connection_string}
             )
+
+            # Log any stderr output for debugging
+            if self.process.stderr:
+                def log_stderr():
+                    try:
+                        for line in self.process.stderr:
+                            if line.strip():
+                                logger.warning(f"[MCP stderr] {line.strip()}")
+                    except:
+                        pass
+
+                stderr_thread = threading.Thread(target=log_stderr, daemon=True)
+                stderr_thread.start()
 
             # Perform MCP initialization handshake with timeout
             init_success = []
