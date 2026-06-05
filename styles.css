@@ -1055,6 +1055,23 @@ code {
     border-radius: var(--radius-sm);
 }
 
+/* Simulation Badge */
+.simulation-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: rgba(251, 191, 36, 0.15);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgb(251, 191, 36);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
 /* Buttons - Modern Design */
 .primary-btn {
     background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-orange-dark) 100%);

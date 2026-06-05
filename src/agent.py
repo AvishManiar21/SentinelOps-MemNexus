@@ -598,6 +598,53 @@ def load_user_memory(user_id: str) -> str:
         logger.error(f"Failed to load user memory: {e}")
         return f"Error reading database memory: {str(e)}"
 
+def _generate_ai_memory_summary(user_id: str, recent_messages: list, conversation_count: int) -> str:
+    """Uses Gemini to generate an intelligent memory summary for a user based on conversation history.
+
+    Args:
+        user_id: The user identifier
+        recent_messages: List of recent conversation messages
+        conversation_count: Total number of conversations
+
+    Returns:
+        AI-generated summary string
+    """
+    try:
+        # Build context from recent messages
+        conversation_context = "\n".join([
+            f"User: {msg.get('user_message', '')[:100]}\nAgent: {msg.get('agent_response', '')[:100]}"
+            for msg in recent_messages[-3:]  # Last 3 conversations
+        ])
+
+        prompt = f"""Analyze this user's conversation history and create a concise 1-sentence memory summary (max 80 chars).
+
+User ID: {user_id}
+Total Conversations: {conversation_count}
+
+Recent exchanges:
+{conversation_context}
+
+Generate a brief, factual summary of their interests/needs. Examples:
+- "SRE engineer troubleshooting MongoDB connection issues"
+- "DevOps lead implementing observability for production systems"
+- "Developer exploring vector search and AI agent patterns"
+
+Summary:"""
+
+        # Use Gemini Flash for quick summarization
+        model = GenerativeModel("gemini-2.5-flash")
+        response = model.generate_content(prompt)
+        summary = response.text.strip().strip('"').strip("'")
+
+        # Truncate to 100 chars max
+        if len(summary) > 100:
+            summary = summary[:97] + "..."
+
+        return summary
+    except Exception as e:
+        logger.error(f"AI synthesis failed: {e}")
+        return f"Active user with {conversation_count} conversation(s)"
+
 def save_chat_history(user_id: str, user_message: str, agent_response: str) -> str:
     """Saves the conversation exchange to MongoDB and aggregates dynamic tags/memory context.
 
@@ -620,6 +667,13 @@ def save_chat_history(user_id: str, user_message: str, agent_response: str) -> s
             "timestamp": datetime.utcnow().isoformat()
         })
 
+        # Get recent conversation history for AI synthesis
+        recent_sessions = list(db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(5))
+        conversation_count = db.sessions.count_documents({"user_id": user_id})
+
+        # Generate AI-powered memory summary
+        ai_summary = _generate_ai_memory_summary(user_id, recent_sessions, conversation_count)
+
         # Update user summary context incrementally
         user_record = db.users.find_one({"user_id": user_id})
         if not user_record:
@@ -631,9 +685,9 @@ def save_chat_history(user_id: str, user_message: str, agent_response: str) -> s
                 "preferences": {
                     "framework": "Google_Gen_AI_SDK",
                     "active_region": GCP_LOCATION,
-                    "last_active": "2026-05-29T22:45:30"
+                    "last_active": datetime.utcnow().isoformat()
                 },
-                "ai_synthesis_summary": f"User actively querying about '{user_message[:30]}...'"
+                "ai_synthesis_summary": ai_summary
             })
         else:
             existing_tags = user_record.get("memory_tags", [])
@@ -646,11 +700,12 @@ def save_chat_history(user_id: str, user_message: str, agent_response: str) -> s
                 {
                     "$set": {
                         "memory_tags": existing_tags,
-                        "ai_synthesis_summary": f"User is asking about '{user_message[:50]}'. Responses are context-grounded."
+                        "ai_synthesis_summary": ai_summary,
+                        "last_active": datetime.utcnow().isoformat()
                     }
                 }
             )
-        return "Conversation exchange saved and memory index synthesized in MongoDB Atlas."
+        return "Conversation exchange saved and AI memory synthesis completed in MongoDB Atlas."
     except Exception as e:
         logger.error(f"Failed to write memory: {e}")
         return f"Error writing to MongoDB: {str(e)}"
@@ -1001,12 +1056,25 @@ def api_diagnose():
 
 @app.route('/api/webhook/alert', methods=['POST'])
 def api_webhook_alert():
-    """Public webhook endpoint for receiving observability alerts.
+    """Webhook endpoint for receiving observability alerts (requires authentication).
 
     Accepts JSON payloads from monitoring systems (Dynatrace, Datadog, etc.)
     and triggers autonomous incident diagnosis.
+
+    Authentication: Requires X-Webhook-Secret header matching WEBHOOK_SECRET env var.
     """
     try:
+        # Authentication check to prevent abuse and quota drain
+        webhook_secret = os.getenv("WEBHOOK_SECRET")
+        if webhook_secret:
+            provided_secret = request.headers.get("X-Webhook-Secret")
+            if not provided_secret or provided_secret != webhook_secret:
+                logger.warning(f"Webhook authentication failed from {request.remote_addr}")
+                return jsonify({
+                    "status": "error",
+                    "error": "Unauthorized: Invalid or missing X-Webhook-Secret header"
+                }), 401
+
         data = request.get_json() or {}
 
         # Extract alert details (supports various monitoring tool formats)

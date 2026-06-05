@@ -5,9 +5,9 @@
 [![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-green?logo=mongodb)](https://www.mongodb.com/cloud/atlas)
 [![Gemini 2.5](https://img.shields.io/badge/Gemini-2.5%20Flash%20%7C%20Pro-orange?logo=google)](https://ai.google.dev/)
 
-**SentinelOps** (formerly MemNexus) is a production-ready, autonomous SRE (Site Reliability Engineering) agent built for the **MongoDB Atlas Track**. It combines **Google Cloud's Gemini 2.5 Enterprise Agent Platform** with **MongoDB Atlas Vector Search** to deliver intelligent incident response, semantic document grounding, and persistent memory.
+**SentinelOps** is an autonomous SRE (Site Reliability Engineering) agent built for the **MongoDB Atlas Track**. It combines **Google Cloud's Gemini 2.5 Enterprise Agent Platform** with **MongoDB Atlas Vector Search** to deliver intelligent incident response, semantic document grounding, and persistent memory.
 
-This project showcases a complete MongoDB Atlas integration with vector search, real-time data visualization, and semantic grounding across 10+ SRE runbooks.
+This hackathon submission showcases MongoDB Atlas integration with vector search, real-time data visualization, and semantic grounding across 10+ SRE runbooks.
 
 **🎯 MongoDB Atlas Track Submission** - All core features utilize MongoDB Atlas M0 free tier for vector embeddings, persistent state, and agent memory.
 
@@ -15,62 +15,28 @@ This project showcases a complete MongoDB Atlas integration with vector search, 
 
 ## ✨ Key Features
 
-### 🤖 AI-Powered Features
-- **Dual Gemini Models**: Switch between Gemini 2.5 Flash (fast) and Pro (deep reasoning)
-- **Semantic Search**: Vector search across 10+ pre-loaded SRE runbooks using 768-dimension embeddings
-- **Context-Aware Chat**: Persistent conversation history with MongoDB storage
-- **Autonomous Diagnostics**: Simulated incident analysis with automated hotfix generation
+**🤖 AI-Powered**: Dual Gemini models (Flash/Pro) • Vector search across 10+ SRE runbooks (768-dim embeddings) • Persistent chat history • Autonomous diagnostics
 
-### 🔍 Advanced Search System
-- **Content Search**: Search across chat history, runbooks, and user profiles
-- **Command Palette**: Quick actions with keyword matching
-- **Smart Suggestions**: Recent searches and popular queries with autocomplete
-- **Live Search**: 300ms debounce with real-time results dropdown
+**🔍 Search System**: Content search • Command palette • Smart suggestions • Live results with 300ms debounce
 
-### 🔔 Notification System
-- **Real-time Alerts**: Critical, warning, and info notifications
-- **Notification Panel**: Dropdown with badge counter and pulse animation
-- **Mark as Read**: Click to dismiss individual notifications
-- **Sample Notifications**: CPU alerts, memory warnings, backup status
+**🔔 Notifications**: Real-time alerts (critical/warning/info) • Dropdown panel with badge counter • Dismissible notifications
 
-### 🔗 Webhook Integration
-- **Alert Endpoint**: `/api/webhook/alert` for observability tools
-- **Webhook Tester**: Built-in UI to test alert payloads
-- **Cloud Logging**: All webhooks logged to Google Cloud Logging
-- **Automated Response**: Trigger autonomous diagnostics from external alerts
+**🔗 Webhook Integration**: `/api/webhook/alert` endpoint • Built-in tester • Cloud Logging • Optional X-Webhook-Secret authentication
 
-> **Note**: Dynatrace and GitLab features in the UI are demonstration simulations to showcase the interface design. The core integration is **MongoDB Atlas** (hackathon track).
+> **Note**: Dynatrace and GitLab features in UI are demonstration simulations. Core integration is **MongoDB Atlas** (hackathon track).
 
-### 🧠 MongoDB Atlas Integration (Primary Track Feature)
-- **Vector Search Index**: Atlas Vector Search with 768-dimensional embeddings using cosine similarity
-- **Three Production Collections**:
-  - `users` - User profiles and memory tags
-  - `sessions` - Chat history and conversation state
-  - `knowledge_vectors` - Vectorized SRE runbooks with embeddings
-- **Live Database Explorer**: Real-time visualization of all MongoDB collections in UI
-- **Batch Ingestion API**: `/api/runbook/ingest-library` endpoint to populate 10 runbooks
-- **Semantic Grounding**: Agent searches runbooks using vector similarity for contextual responses
-- **Atlas M0 Free Tier**: Fully operational on MongoDB's free tier
-- **Connection Pooling**: Optimized for production workloads
+**🧠 MongoDB Atlas Integration** (Primary Track Feature)
+- Vector Search with 768-dim embeddings (cosine similarity)
+- 3 Collections: `users`, `sessions`, `knowledge_vectors`
+- **AI Memory Synthesis**: Gemini automatically generates user summaries from conversation history
+- Live database explorer in UI
+- Batch ingestion API for 10 runbooks
+- Semantic grounding for contextual responses
+- Atlas M0 free tier with connection pooling
 
-### 🎨 Modern UI/UX
-- **Glassmorphic Design**: Dark theme with orange accent colors
-- **Fixed Sidebar**: Navigation stays in place while content scrolls
-- **Responsive Layout**: Single scrollbar, no layout displacement
-- **Smooth Animations**: Transitions, hover effects, and scroll behaviors
-- **Notification Bell**: Functional dropdown with unread count
-- **System Status Monitor**: Real-time health monitoring with auto-refresh
+**🎨 Modern UI/UX**: Glassmorphic dark theme • Fixed sidebar • Responsive layout • Smooth animations • System status monitor with auto-refresh
 
-### 📊 System Status Monitoring
-- **Real-time Health Checks**: Monitors Backend API, Vertex AI, MongoDB Atlas, and MCP server
-- **Three Status States**:
-  - 🟢 **Online** - All systems operational
-  - 🟡 **Degraded** - Partial service available
-  - 🔴 **Offline** - Service unavailable
-- **Interactive Status Badge**: Click to expand detailed health panel
-- **Auto-refresh**: Status updates every 30 seconds
-- **Per-Service Breakdown**: View individual component health and error messages
-- **Last Check Timestamp**: Know when the status was last verified
+**📊 System Status**: Real-time health checks (Backend, Vertex AI, MongoDB, MCP) • 3 states: Online 🟢 / Degraded 🟡 / Offline 🔴 • Interactive badge • 30s auto-refresh
 
 ---
 
@@ -146,25 +112,11 @@ SentinelOps-MemNexus/
 
 ## 🛠️ Technology Stack
 
-### Backend
-- **Python 3.9+** with Flask for REST API
-- **Google Gemini 2.5** (Flash & Pro models)
-- **MongoDB Atlas** with Vector Search (768-dim embeddings)
-- **Google Cloud Storage** for backup
-- **Google Cloud Logging** for observability
-- **Docker** for containerization
+**Backend**: Python 3.9+ (Flask) • Gemini 2.5 (Flash/Pro) • MongoDB Atlas Vector Search • GCS Backup • Cloud Logging • Docker
 
-### Frontend
-- **Vanilla JavaScript** (no frameworks)
-- **HTML5 & CSS3** with modern glassmorphic design
-- **Flexbox & Grid** for responsive layouts
-- **Custom animations** and transitions
+**Frontend**: Vanilla JS • HTML5 & CSS3 (glassmorphic) • Flexbox/Grid • Custom animations
 
-### Cloud Services
-- **Google Cloud Run** for serverless deployment
-- **Google Vertex AI** for Gemini models
-- **MongoDB Atlas M0** (free tier)
-- **GitHub Pages** for static hosting
+**Cloud**: Google Cloud Run • Vertex AI • MongoDB Atlas M0 • GitHub Pages
 
 ---
 
@@ -283,7 +235,7 @@ SentinelOps uses **MongoDB Atlas as the foundational data layer** for all agent 
 ### 2. **Collections Architecture**
 - **`knowledge_vectors`** - 10 SRE runbooks with 768-dim embeddings from `text-embedding-004`
 - **`sessions`** - All chat conversations with timestamps and user context
-- **`users`** - User profiles with AI-synthesized memory tags
+- **`users`** - User profiles with AI-synthesized memory summaries (Gemini-powered)
 
 ### 3. **Agent Tools Using MongoDB**
 ```python
@@ -369,282 +321,77 @@ The dashboard includes a live **MongoDB Memory Core** tab with:
 
 ## 🎨 UI Features
 
-### Dashboard Tabs
-1. **Incident Command** - View active and resolved incidents, diagnose with AI
-2. **SRE Diagnostic Chat** - Interactive chat with Gemini agent, model selector
-3. **MongoDB Memory Core** - Live database explorer with three sub-tabs
-4. **Runbook Ingester** - Upload and vectorize SRE documentation
+**Dashboard Tabs**: Incident Command | SRE Diagnostic Chat | MongoDB Memory Core | Runbook Ingester
 
-### Interactive Components
-- **System Status Monitor** - Real-time health badge with expandable details panel
-- **Fixed Sidebar Navigation** - Stays in place while scrolling
-- **Global Search Bar** - Search across all collections with suggestions
-- **Notification Bell** - Real-time alerts with badge counter
-- **Model Selector** - Switch between Gemini Flash and Pro
-- **Webhook Tester** - Test observability alert integrations
-- **Terminal Logs** - Live operation traces with color coding
+**Interactive Components**: System Status Monitor • Global Search • Notification Bell • Model Selector • Webhook Tester • Terminal Logs
 
 ---
 
 ## 📊 Pre-Loaded SRE Runbooks
 
-The system comes with 10 pre-configured SRE incident response guides:
-
-1. MongoDB Connection Fault & Pooling Guide
-2. Node.js Out of Memory (OOM) Heap Leak Guide
-3. Nginx Reverse Proxy Rate Limiting & DDoS Prevention
-4. Kubernetes Disk Space Exhaustion & Log Rotation
-5. Redis Cache Key Eviction & Connection Exhaustion
-6. DNS Resolution Failure in Kubernetes Cluster
-7. SSL/TLS Certificate Expiry & Auto-Renewal Failure
-8. Database Replication Lag & Read/Write Splitting
-9. Dynatrace Server Latency Spike — CPU 98.4% Recovery
-10. GCP IAM Access Denied on Cloud Storage Buckets
-
-All runbooks are vectorized using `text-embedding-004` and stored in MongoDB Atlas for semantic search.
+**10 pre-configured incident response guides** (vectorized with text-embedding-004):
+MongoDB Connection Fault • Node.js OOM Heap Leak • Nginx Rate Limiting & DDoS • Kubernetes Disk Exhaustion • Redis Cache Eviction • DNS Resolution Failure • SSL/TLS Certificate Expiry • Database Replication Lag • Dynatrace CPU Recovery • GCP IAM Access Denied
 
 ---
 
 ## 🎮 Usage Examples
 
-### Chat with the SRE Agent
-```javascript
-// Ask about MongoDB connection issues
-"How do I fix MongoDB connection timeouts?"
+**Chat**: Ask "How do I fix MongoDB connection timeouts?" → Agent searches runbooks using vector similarity
 
-// The agent uses semantic search to find relevant runbooks
-// Returns: MongoDB Connection Fault & Pooling Guide
-```
+**Search**: Type "redis cache" → Finds Redis runbook instantly
 
-### Search Functionality
-```javascript
-// Content search
-"redis cache" → Finds Redis runbook
+**Webhook**: Send observability alerts via `/api/webhook/alert` (requires `X-Webhook-Secret` header if `WEBHOOK_SECRET` env var is set)
 
-// Command palette
-"chat" → Opens diagnostic chat
-
-// Recent searches
-Click search bar when empty → Shows search history
-```
-
-### Webhook Integration
 ```bash
-# Send alert to SentinelOps
 curl -X POST https://sentinelops-api-yucauzs4lq-uc.a.run.app/api/webhook/alert \
   -H "Content-Type: application/json" \
-  -d '{
-    "alert_name": "CPU Usage Critical",
-    "severity": "CRITICAL",
-    "description": "Server us-central1-a is at 98.4% CPU",
-    "source": "Dynatrace"
-  }'
+  -H "X-Webhook-Secret: your-webhook-secret" \
+  -d '{"alert_name": "CPU Critical", "severity": "CRITICAL", "source": "Dynatrace"}'
 ```
 
 ---
 
 ## 🔧 API Reference
 
-### Health Check Endpoint
-```http
-GET /api/health
-```
+**Key Endpoints:**
+- `GET /api/health` - System health monitoring (4 services: backend, vertex_ai, mongodb, mcp_server)
+- `POST /api/chat` - Chat with Gemini agent (params: message, user_id, model)
+- `GET /api/db/collections` - View all MongoDB collections (users, sessions, knowledge_vectors)
+- `POST /api/runbook/ingest-library` - Batch upload 10 SRE runbooks
+- `POST /api/webhook/alert` - Receive observability alerts (requires X-Webhook-Secret)
 
-**Response:**
-```json
-{
-  "timestamp": "2026-06-05T10:30:00.000Z",
-  "overall_status": "online",
-  "services": {
-    "backend": {
-      "status": "online",
-      "message": "Flask API operational"
-    },
-    "vertex_ai": {
-      "status": "online",
-      "message": "Gemini gemini-2.5-flash ready"
-    },
-    "mongodb": {
-      "status": "online",
-      "message": "MongoDB Atlas connected"
-    },
-    "mcp_server": {
-      "status": "online",
-      "message": "MongoDB MCP active (12 tools)"
-    }
-  }
-}
-```
-
-**Status Values:**
-- `online` - Service fully operational
-- `degraded` - Service partially available
-- `offline` - Service unavailable
-- `unknown` - Status cannot be determined
-
-### Chat Endpoint
-```http
-POST /api/chat
-Content-Type: application/json
-
-{
-  "message": "How to fix high CPU usage?",
-  "user_id": "AvishManiar21",
-  "model": "gemini-2.5-flash"
-}
-```
-
-**Response:**
-```json
-{
-  "response": "Based on the SRE runbook...",
-  "model_used": "gemini-2.5-flash",
-  "traces": ["[INFO] Tool Triggered: search_knowledge_base..."]
-}
-```
-
-### Database Collections
-```http
-GET /api/db/collections
-```
-
-**Response:**
-```json
-{
-  "users": [...],
-  "sessions": [...],
-  "knowledge_vectors": [...]
-}
-```
-
-### Batch Runbook Ingestion
-```http
-POST /api/runbook/ingest-library
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "ingested_count": 10,
-  "total": 10,
-  "document_ids": ["...", "..."],
-  "traces": ["[INFO] Vectorizing: 'MongoDB Connection Fault'..."]
-}
-```
+**Status Values**: `online` | `degraded` | `offline` | `unknown`
 
 ---
 
 ## 🐛 Troubleshooting
 
-### MongoDB Connection Issues
-```bash
-# Error: "MongoDB cluster connection is offline"
-# Solution: Add 0.0.0.0/0 to MongoDB Atlas Network Access
-```
-
-### Cloud Run Deployment Fails
-```bash
-# Error: "ZIP does not support timestamps before 1980"
-# Solution: .gcloudignore file excludes .claude/ and other temp directories
-```
-
-### Runbooks Not Appearing
-```bash
-# Check if runbooks were ingested
-curl https://sentinelops-api-yucauzs4lq-uc.a.run.app/api/db/collections
-
-# Re-run ingestion
-python scripts/batch_ingest_via_api.py
-```
-
-### Search Not Working
-```bash
-# Hard refresh browser cache
-# Windows/Linux: Ctrl + Shift + R
-# Mac: Cmd + Shift + R
-```
+| Issue | Solution |
+|-------|----------|
+| MongoDB connection offline | Add `0.0.0.0/0` to MongoDB Atlas Network Access |
+| Cloud Run deployment fails | Ensure `.gcloudignore` excludes temp directories |
+| Runbooks not appearing | Run `python scripts/batch_ingest_via_api.py` |
+| Search not working | Hard refresh browser cache (Ctrl+Shift+R) |
 
 ---
 
-## 🌟 Premium Features
+## 🌟 Additional Features
 
-### Google Cloud Storage Integration
-- Automatic backup of all ingested runbooks
-- GCS bucket: `sentinelops-runbooks-backup`
-- Accessible via `gs://` URLs
-
-### Cloud Logging
-- All API requests logged to Google Cloud Logging
-- Webhook alerts tracked with severity levels
-- Searchable logs in GCP Console
-
-### Model Selection
-- **Gemini 2.5 Flash**: Fast responses, cost-efficient
-- **Gemini 2.5 Pro**: Deep reasoning, complex analysis
-- Switch models mid-conversation
-
-### Notification System
-- Real-time alerts for critical events
-- CPU usage warnings
-- Memory warnings
-- Backup completion notifications
-
----
-
-## 📈 Performance Metrics
-
-- **Vector Search Latency**: ~200ms average
-- **Chat Response Time**: ~1-3s (Flash), ~3-5s (Pro)
-- **Runbook Ingestion**: ~2s per document
-- **API Uptime**: 99.9% on Cloud Run
-- **Database Operations**: <100ms MongoDB Atlas M0
+- **Cloud Storage**: Automatic backup of ingested runbooks to GCS
+- **Cloud Logging**: All API requests and webhook alerts logged with severity tracking
+- **Model Selection**: Switch between Gemini 2.5 Flash (fast) and Pro (deep reasoning) mid-conversation
+- **Notification System**: Real-time alerts for critical events, CPU/memory warnings, and backup status
 
 ---
 
 ## 🤝 Contributing
 
-This project was built for the Google Cloud Rapid Agent Hackathon. Contributions are welcome!
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+This project was built for the Google Cloud Rapid Agent Hackathon. Contributions welcome! Fork → Feature branch → Pull Request.
 
 ---
 
-## 📄 License
+## 📄 License & Author
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+**MIT License** | **Avish Maniar** ([@AvishManiar21](https://github.com/AvishManiar21))
 
----
-
-## 👤 Author
-
-**Avish Maniar**
-- Role: Lead DevOps Engineer
-- GitHub: [@AvishManiar21](https://github.com/AvishManiar21)
-- Project: SentinelOps-MemNexus
-
----
-
-## 🙏 Acknowledgments
-
-- **Google Cloud** for Vertex AI and Gemini 2.5 models
-- **MongoDB Atlas** for vector search capabilities
-- **Hackathon Organizers** for the amazing opportunity
-- **Open Source Community** for inspiration and tools
-
----
-
-## 📞 Support
-
-For issues, questions, or feedback:
-- Open an issue on GitHub
-- Check the documentation in `/docs`
-- Review troubleshooting section above
-
----
-
-**Built with ❤️ for the Google Cloud Rapid Agent Hackathon**
+**Built for the Google Cloud Rapid Agent Hackathon** - Powered by Gemini 2.5 & MongoDB Atlas
