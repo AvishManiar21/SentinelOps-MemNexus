@@ -59,6 +59,18 @@ This project showcases a complete MongoDB Atlas integration with vector search, 
 - **Responsive Layout**: Single scrollbar, no layout displacement
 - **Smooth Animations**: Transitions, hover effects, and scroll behaviors
 - **Notification Bell**: Functional dropdown with unread count
+- **System Status Monitor**: Real-time health monitoring with auto-refresh
+
+### 📊 System Status Monitoring
+- **Real-time Health Checks**: Monitors Backend API, Vertex AI, MongoDB Atlas, and MCP server
+- **Three Status States**:
+  - 🟢 **Online** - All systems operational
+  - 🟡 **Degraded** - Partial service available
+  - 🔴 **Offline** - Service unavailable
+- **Interactive Status Badge**: Click to expand detailed health panel
+- **Auto-refresh**: Status updates every 30 seconds
+- **Per-Service Breakdown**: View individual component health and error messages
+- **Last Check Timestamp**: Know when the status was last verified
 
 ---
 
@@ -67,25 +79,50 @@ This project showcases a complete MongoDB Atlas integration with vector search, 
 ```
 SentinelOps-MemNexus/
 ├── src/                           # Backend Python code
-│   ├── agent.py                  # Flask API server with Gemini integration
+│   ├── agent.py                  # Flask API with Gemini, MongoDB MCP client
 │   └── index_docs.py             # MongoDB document ingestion script
 ├── docs/                          # Documentation
 │   ├── DEPLOYMENT.md             # Cloud Run deployment guide
 │   ├── SECURITY.md               # Security & credential management
 │   └── TEST-DEPLOYMENT.md        # Post-deployment testing guide
-├── index.html                     # Main dashboard UI
-├── app.js                         # Frontend JavaScript controller
+├── index.html                     # Main dashboard UI (GitHub Pages)
+├── app.js                         # Frontend controller with status monitoring
 ├── styles.css                     # Modern glassmorphic styles
 ├── config.js                      # Environment detection & API config
+├── LICENSE                        # MIT License (hackathon requirement)
 ├── deploy.ps1                     # Secure Cloud Run deployment script
 ├── batch_ingest_via_api.py       # Batch SRE runbooks ingestion
 ├── ingest_sre_library.py         # Local ingestion script
-├── Dockerfile                     # Container configuration
+├── Dockerfile                     # Multi-runtime container (Python + Node.js)
 ├── requirements.txt               # Python dependencies
 ├── .env.example                   # Environment variable template
 ├── .gcloudignore                  # Files to exclude from deployment
 └── README.md                      # This file
 ```
+
+### 📦 Key Components
+
+**Backend (`src/agent.py`)**:
+- Flask REST API with CORS enabled
+- Gemini 2.5 Flash & Pro model integration
+- MongoDB Atlas client with connection pooling
+- MongoDB MCP Server client (JSON-RPC 2.0)
+- Google Cloud Storage for runbook backups
+- Google Cloud Logging for audit trails
+- 4 Vertex AI tools: search_knowledge_base, load_user_memory, save_chat_history, execute_mongodb_mcp_tool
+
+**Frontend (GitHub Pages)**:
+- Vanilla JavaScript (no frameworks)
+- Real-time system status monitoring
+- Advanced search with autocomplete
+- Interactive notification system
+- Responsive glassmorphic design
+
+**Container (`Dockerfile`)**:
+- Python 3.11 slim base image
+- Node.js 20+ for MongoDB MCP server
+- Multi-runtime support (Python + Node.js)
+- Optimized for Cloud Run deployment
 
 ---
 
@@ -94,8 +131,10 @@ SentinelOps-MemNexus/
 **Production Deployment**: [https://sentinelops-api-yucauzs4lq-uc.a.run.app](https://sentinelops-api-yucauzs4lq-uc.a.run.app)
 
 **API Endpoints**:
+- `GET /` - Basic API status check
+- `GET /api/health` - Comprehensive system health monitoring
 - `GET /api/db/collections` - View all MongoDB collections
-- `POST /api/chat` - Chat with Gemini agent
+- `POST /api/chat` - Chat with Gemini agent (supports model selection)
 - `POST /api/diagnose` - Autonomous incident diagnosis
 - `POST /api/runbook/ingest` - Upload single runbook
 - `POST /api/runbook/ingest-library` - Batch upload 10 runbooks
@@ -246,20 +285,29 @@ SentinelOps uses **MongoDB Atlas as the foundational data layer** for all agent 
 
 ### 3. **Agent Tools Using MongoDB**
 ```python
-# Three production tools integrated with Gemini
+# Four production tools integrated with Gemini
 1. search_knowledge_base(query: str) → Vector search across runbooks
 2. load_user_memory(user_id: str) → Retrieve user context
 3. save_chat_history(user_id, message, response) → Persist conversations
+4. execute_mongodb_mcp_tool(tool_name, arguments) → Execute MCP server tools
 ```
 
-### 4. **Real-time Data Visualization**
+### 4. **MongoDB MCP Server Integration** (Hackathon Compliance)
+- **Official MCP Server**: Uses `@mongodb-js/mongodb-mcp-server` via npx
+- **JSON-RPC 2.0 Protocol**: Custom Python client for subprocess communication
+- **Cross-Platform Support**: Works on Windows (local dev) and Linux (Cloud Run)
+- **12 MCP Tools Available**: Database queries, aggregations, schema inspection, index operations
+- **Gemini Integration**: MCP tools accessible to the AI agent as Vertex AI functions
+- **Health Monitoring**: MCP server status tracked in real-time via `/api/health`
+
+### 5. **Real-time Data Visualization**
 The dashboard includes a live **MongoDB Memory Core** tab with:
 - User profiles viewer
 - Chat history explorer
 - Vector runbooks browser
 - Real-time collection updates
 
-### 5. **Production Deployment**
+### 6. **Production Deployment**
 - **Atlas M0 Free Tier** - Fully operational
 - **Network Access** - Configured for Cloud Run connectivity
 - **Connection String** - Securely managed via environment variables
@@ -275,11 +323,13 @@ The dashboard includes a live **MongoDB Memory Core** tab with:
 - $100 GCP credits utilized for premium features
 
 ### ✅ Phase 2: Action Mechanisms (Tool Use)
-- Three production MongoDB tools integrated with Gemini:
+- Four production tools integrated with Gemini:
   - `search_knowledge_base()` - Vector search function
   - `load_user_memory()` - User context retrieval
   - `save_chat_history()` - Conversation persistence
+  - `execute_mongodb_mcp_tool()` - MongoDB MCP server integration
 - Function calling with structured outputs
+- Dynamic tool registration based on MCP availability
 
 ### ✅ Phase 3: Partner Integration - **MongoDB Atlas Track**
 - **MongoDB Atlas M0** cluster with Vector Search
@@ -289,19 +339,29 @@ The dashboard includes a live **MongoDB Memory Core** tab with:
 - **10 pre-loaded SRE runbooks** with full vectorization
 - **Real-time synchronization** between agent and database
 - **Connection pooling** for production performance
+- **Official MongoDB MCP Server** (`@mongodb-js/mongodb-mcp-server`)
+- **JSON-RPC 2.0 client** for MCP communication
+- **12 MCP tools** for database operations
 
 ### ✅ Phase 4: State, Secrets, & Logic Hosting
-- Google Cloud Secret Manager integration
-- Secure credential management (optional)
-- Environment variable configuration
-- Cloud Run deployment with managed secrets
+- Google Cloud Secret Manager integration (optional)
+- Secure credential management via environment variables
+- MongoDB connection string securely configured
+- Cloud Run deployment with managed secrets support
 
 ### ✅ Phase 5: Deployment & Safety Guardrails
-- Containerized with Docker
+- Multi-runtime Docker container (Python 3.11 + Node.js 20+)
 - Deployed to Cloud Run (serverless)
 - Gemini safety filters configured
 - CORS enabled for cross-origin requests
 - Production-ready error handling
+- Cross-platform MCP client (Windows/Linux)
+- Graceful subprocess management with cleanup
+
+### ✅ Open Source Compliance
+- **MIT License** included in repository root
+- Public repository with visible license badge
+- Open-source contributions enabled
 
 ---
 
@@ -314,6 +374,7 @@ The dashboard includes a live **MongoDB Memory Core** tab with:
 4. **Runbook Ingester** - Upload and vectorize SRE documentation
 
 ### Interactive Components
+- **System Status Monitor** - Real-time health badge with expandable details panel
 - **Fixed Sidebar Navigation** - Stays in place while scrolling
 - **Global Search Bar** - Search across all collections with suggestions
 - **Notification Bell** - Real-time alerts with badge counter
@@ -381,6 +442,43 @@ curl -X POST https://sentinelops-api-yucauzs4lq-uc.a.run.app/api/webhook/alert \
 ---
 
 ## 🔧 API Reference
+
+### Health Check Endpoint
+```http
+GET /api/health
+```
+
+**Response:**
+```json
+{
+  "timestamp": "2026-06-05T10:30:00.000Z",
+  "overall_status": "online",
+  "services": {
+    "backend": {
+      "status": "online",
+      "message": "Flask API operational"
+    },
+    "vertex_ai": {
+      "status": "online",
+      "message": "Gemini gemini-2.5-flash ready"
+    },
+    "mongodb": {
+      "status": "online",
+      "message": "MongoDB Atlas connected"
+    },
+    "mcp_server": {
+      "status": "online",
+      "message": "MongoDB MCP active (12 tools)"
+    }
+  }
+}
+```
+
+**Status Values:**
+- `online` - Service fully operational
+- `degraded` - Service partially available
+- `offline` - Service unavailable
+- `unknown` - Status cannot be determined
 
 ### Chat Endpoint
 ```http
