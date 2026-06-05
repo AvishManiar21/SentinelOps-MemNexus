@@ -911,13 +911,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     timestamp: new Date().toISOString()
                 };
 
-                // Note: In production, webhooks require X-Webhook-Secret header
-                // For demo purposes, secret validation is optional (checks WEBHOOK_SECRET env var)
+                // Note: Webhook requires X-Webhook-Secret header for authentication
+                // Using demo secret that matches Cloud Run WEBHOOK_SECRET env var
                 const res = await fetch(`${API_BASE}/api/webhook/alert`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
-                        // Add 'X-Webhook-Secret': 'your-secret' if WEBHOOK_SECRET is configured
+                        'Content-Type': 'application/json',
+                        'X-Webhook-Secret': 'sentinelops-demo-webhook-secret-2026'
                     },
                     body: JSON.stringify(payload)
                 });

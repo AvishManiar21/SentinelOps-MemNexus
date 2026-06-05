@@ -632,8 +632,10 @@ Generate a brief, factual summary of their interests/needs. Examples:
 Summary:"""
 
         # Use Gemini Flash for quick summarization
-        model = GenerativeModel("gemini-2.5-flash")
-        response = model.generate_content(prompt)
+        response = ai_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
         summary = response.text.strip().strip('"').strip("'")
 
         # Truncate to 100 chars max
