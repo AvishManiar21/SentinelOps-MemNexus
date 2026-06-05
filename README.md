@@ -254,7 +254,7 @@ gcloud run deploy sentinelops-api \
 ### 8. Populate Sample Data
 ```bash
 # After deployment, populate 10 SRE runbooks
-python batch_ingest_via_api.py
+python scripts/batch_ingest_via_api.py
 ```
 
 ---
@@ -555,7 +555,7 @@ POST /api/runbook/ingest-library
 curl https://sentinelops-api-yucauzs4lq-uc.a.run.app/api/db/collections
 
 # Re-run ingestion
-python batch_ingest_via_api.py
+python scripts/batch_ingest_via_api.py
 ```
 
 ### Search Not Working

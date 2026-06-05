@@ -45,8 +45,9 @@ Thumbs.db
 # Cache
 .cache/
 
-# Node.js
+# Node.js (local dev dependencies)
 node_modules/
+package.json
 package-lock.json
 npm-debug.log*
 yarn-debug.log*
