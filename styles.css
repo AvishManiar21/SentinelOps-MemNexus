@@ -544,7 +544,26 @@ code {
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
+.credit-status-badge:hover {
+    background: linear-gradient(135deg, var(--primary-orange-glow) 20%, transparent 100%);
+    transform: translateY(-1px);
+}
+.credit-status-badge[data-status="online"] {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, transparent 100%);
+    border-color: rgba(34, 197, 94, 0.4);
+}
+.credit-status-badge[data-status="degraded"] {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, transparent 100%);
+    border-color: rgba(251, 191, 36, 0.4);
+}
+.credit-status-badge[data-status="offline"] {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, transparent 100%);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
 .credit-dot {
     width: 8px;
     height: 8px;
@@ -552,6 +571,146 @@ code {
     background-color: var(--primary-orange);
     box-shadow: 0 0 10px var(--primary-orange-glow);
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.credit-status-badge[data-status="online"] .credit-dot {
+    background-color: rgb(34, 197, 94);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+}
+.credit-status-badge[data-status="degraded"] .credit-dot {
+    background-color: rgb(251, 191, 36);
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+}
+.credit-status-badge[data-status="offline"] .credit-dot {
+    background-color: rgb(239, 68, 68);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+    animation: none;
+}
+
+/* Status Details Panel */
+.status-details-panel {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 380px;
+    max-height: 500px;
+    background: rgba(20, 20, 20, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    z-index: 1001;
+    overflow: hidden;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.status-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.status-details-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.close-status-panel {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.close-status-panel:hover {
+    color: var(--text-primary);
+}
+
+.status-details-body {
+    padding: 16px 20px;
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.status-service {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-service:last-child {
+    border-bottom: none;
+}
+
+.status-service-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.status-service-icon {
+    font-size: 12px;
+    transition: color 0.3s;
+}
+
+.status-service-icon[data-status="online"] {
+    color: rgb(34, 197, 94);
+}
+
+.status-service-icon[data-status="degraded"],
+.status-service-icon[data-status="unknown"] {
+    color: rgb(251, 191, 36);
+}
+
+.status-service-icon[data-status="offline"] {
+    color: rgb(239, 68, 68);
+}
+
+.status-service-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.status-service-message {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-left: 22px;
+}
+
+.status-details-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.status-timestamp {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
 }
 .icon-button {
     background: rgba(255, 255, 255, 0.04);

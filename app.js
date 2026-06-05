@@ -943,4 +943,148 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-fetch data on startup
     fetchDatabaseCollections();
+
+    // ---------------------------------------------------------
+    // 12. System Status Monitoring
+    // ---------------------------------------------------------
+    const statusBadge = document.querySelector('.credit-status-badge');
+    const statusDot = document.querySelector('.credit-dot');
+    const statusText = document.querySelector('.status-text');
+    let statusDetailsPanel = null;
+
+    // Create status details panel
+    function createStatusDetailsPanel() {
+        const panel = document.createElement('div');
+        panel.className = 'status-details-panel';
+        panel.style.display = 'none';
+        panel.innerHTML = `
+            <div class="status-details-header">
+                <h3>System Health</h3>
+                <button class="close-status-panel">×</button>
+            </div>
+            <div class="status-details-body">
+                <div class="status-service">
+                    <div class="status-service-header">
+                        <span class="status-service-icon" data-service="backend">●</span>
+                        <span class="status-service-name">Backend API</span>
+                    </div>
+                    <span class="status-service-message" data-service="backend">Checking...</span>
+                </div>
+                <div class="status-service">
+                    <div class="status-service-header">
+                        <span class="status-service-icon" data-service="vertex_ai">●</span>
+                        <span class="status-service-name">Vertex AI / Gemini</span>
+                    </div>
+                    <span class="status-service-message" data-service="vertex_ai">Checking...</span>
+                </div>
+                <div class="status-service">
+                    <div class="status-service-header">
+                        <span class="status-service-icon" data-service="mongodb">●</span>
+                        <span class="status-service-name">MongoDB Atlas</span>
+                    </div>
+                    <span class="status-service-message" data-service="mongodb">Checking...</span>
+                </div>
+                <div class="status-service">
+                    <div class="status-service-header">
+                        <span class="status-service-icon" data-service="mcp_server">●</span>
+                        <span class="status-service-name">MongoDB MCP Server</span>
+                    </div>
+                    <span class="status-service-message" data-service="mcp_server">Checking...</span>
+                </div>
+            </div>
+            <div class="status-details-footer">
+                <span class="status-timestamp">Last checked: Never</span>
+            </div>
+        `;
+        document.body.appendChild(panel);
+        return panel;
+    }
+
+    statusDetailsPanel = createStatusDetailsPanel();
+
+    // Update status badge based on health data
+    function updateSystemStatus(healthData) {
+        const overallStatus = healthData.overall_status || 'unknown';
+
+        // Update badge appearance
+        statusBadge.setAttribute('data-status', overallStatus);
+
+        // Update status text
+        const statusMessages = {
+            'online': 'All Systems Operational',
+            'degraded': 'Partial Service Available',
+            'offline': 'Service Unavailable',
+            'unknown': 'Status Unknown'
+        };
+        statusText.textContent = `System Status: ${statusMessages[overallStatus] || 'Unknown'}`;
+
+        // Update details panel if exists
+        if (healthData.services) {
+            Object.keys(healthData.services).forEach(serviceName => {
+                const service = healthData.services[serviceName];
+                const icon = statusDetailsPanel.querySelector(`[data-service="${serviceName}"].status-service-icon`);
+                const message = statusDetailsPanel.querySelector(`[data-service="${serviceName}"].status-service-message`);
+
+                if (icon && message) {
+                    icon.setAttribute('data-status', service.status);
+                    message.textContent = service.message || 'Unknown';
+                }
+            });
+        }
+
+        // Update timestamp
+        const timestamp = statusDetailsPanel.querySelector('.status-timestamp');
+        if (timestamp && healthData.timestamp) {
+            const date = new Date(healthData.timestamp);
+            timestamp.textContent = `Last checked: ${date.toLocaleTimeString()}`;
+        }
+    }
+
+    // Fetch health status
+    async function fetchHealthStatus() {
+        try {
+            const res = await fetch(`${API_BASE}/api/health`);
+            const data = await res.json();
+            updateSystemStatus(data);
+        } catch (err) {
+            console.error('Health check failed:', err);
+            updateSystemStatus({
+                overall_status: 'offline',
+                services: {
+                    backend: { status: 'offline', message: 'Cannot reach backend' },
+                    vertex_ai: { status: 'unknown', message: 'Not checked' },
+                    mongodb: { status: 'unknown', message: 'Not checked' },
+                    mcp_server: { status: 'unknown', message: 'Not checked' }
+                }
+            });
+        }
+    }
+
+    // Toggle status details panel
+    statusBadge.addEventListener('click', () => {
+        if (statusDetailsPanel.style.display === 'none') {
+            statusDetailsPanel.style.display = 'block';
+            fetchHealthStatus(); // Refresh on open
+        } else {
+            statusDetailsPanel.style.display = 'none';
+        }
+    });
+
+    // Close panel
+    statusDetailsPanel.querySelector('.close-status-panel').addEventListener('click', () => {
+        statusDetailsPanel.style.display = 'none';
+    });
+
+    // Close panel when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!statusBadge.contains(e.target) && !statusDetailsPanel.contains(e.target)) {
+            statusDetailsPanel.style.display = 'none';
+        }
+    });
+
+    // Initial health check
+    fetchHealthStatus();
+
+    // Auto-refresh every 30 seconds
+    setInterval(fetchHealthStatus, 30000);
 });

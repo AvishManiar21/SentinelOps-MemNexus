@@ -695,6 +695,92 @@ def api_status():
         "mongodb": "connected" if db is not None else "simulation"
     })
 
+@app.route('/api/health', methods=['GET'])
+def api_health():
+    """Comprehensive system health check endpoint for status monitoring."""
+    try:
+        health_status = {
+            "timestamp": None,
+            "overall_status": "online",
+            "services": {
+                "backend": {"status": "online", "message": "Flask API operational"},
+                "vertex_ai": {"status": "unknown", "message": "Not tested"},
+                "mongodb": {"status": "unknown", "message": "Not tested"},
+                "mcp_server": {"status": "unknown", "message": "Not tested"}
+            }
+        }
+
+        from datetime import datetime
+        health_status["timestamp"] = datetime.utcnow().isoformat() + "Z"
+
+        # Check MongoDB connection
+        if db is not None:
+            try:
+                mongo_client.admin.command('ping')
+                health_status["services"]["mongodb"]["status"] = "online"
+                health_status["services"]["mongodb"]["message"] = "MongoDB Atlas connected"
+            except Exception as e:
+                health_status["services"]["mongodb"]["status"] = "offline"
+                health_status["services"]["mongodb"]["message"] = f"Connection failed: {str(e)[:50]}"
+                health_status["overall_status"] = "degraded"
+        else:
+            health_status["services"]["mongodb"]["status"] = "offline"
+            health_status["services"]["mongodb"]["message"] = "No MongoDB connection configured"
+            health_status["overall_status"] = "degraded"
+
+        # Check Vertex AI connection
+        try:
+            # Quick test to verify AI client is initialized
+            if ai_client:
+                health_status["services"]["vertex_ai"]["status"] = "online"
+                health_status["services"]["vertex_ai"]["message"] = f"Gemini {GEMINI_MODEL} ready"
+            else:
+                health_status["services"]["vertex_ai"]["status"] = "offline"
+                health_status["services"]["vertex_ai"]["message"] = "AI client not initialized"
+                health_status["overall_status"] = "degraded"
+        except Exception as e:
+            health_status["services"]["vertex_ai"]["status"] = "offline"
+            health_status["services"]["vertex_ai"]["message"] = f"Error: {str(e)[:50]}"
+            health_status["overall_status"] = "degraded"
+
+        # Check MCP server status
+        if mcp_client and mcp_client.initialized:
+            try:
+                # Check if process is still running
+                if mcp_client.process and mcp_client.process.poll() is None:
+                    health_status["services"]["mcp_server"]["status"] = "online"
+                    health_status["services"]["mcp_server"]["message"] = f"MongoDB MCP active ({len(mcp_client.available_tools)} tools)"
+                else:
+                    health_status["services"]["mcp_server"]["status"] = "offline"
+                    health_status["services"]["mcp_server"]["message"] = "MCP process terminated"
+                    health_status["overall_status"] = "degraded"
+            except Exception as e:
+                health_status["services"]["mcp_server"]["status"] = "offline"
+                health_status["services"]["mcp_server"]["message"] = f"Status check failed: {str(e)[:50]}"
+                health_status["overall_status"] = "degraded"
+        else:
+            health_status["services"]["mcp_server"]["status"] = "offline"
+            health_status["services"]["mcp_server"]["message"] = "MCP server not initialized"
+
+        # Determine overall status
+        statuses = [service["status"] for service in health_status["services"].values()]
+        if all(s == "online" for s in statuses):
+            health_status["overall_status"] = "online"
+        elif all(s == "offline" for s in statuses):
+            health_status["overall_status"] = "offline"
+        else:
+            health_status["overall_status"] = "degraded"
+
+        return jsonify(health_status)
+
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "overall_status": "offline",
+            "error": str(e)
+        }), 500
+
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
     try:
