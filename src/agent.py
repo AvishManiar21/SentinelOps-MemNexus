@@ -118,8 +118,11 @@ class MongoDBMCPClient:
 
             # Launch MCP server with connection string
             # On Windows, npx is npx.cmd and requires shell=True
+            # Use direct command if globally installed, otherwise use npx
+            mcp_cmd = ["mongodb-mcp-server"] if not is_windows else ["npx", "-y", "@mongodb-js/mongodb-mcp-server"]
+
             self.process = subprocess.Popen(
-                ["npx", "-y", "@mongodb-js/mongodb-mcp-server"],
+                mcp_cmd,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,  # Capture stderr to log errors

@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm@latest \
+    && npm install -g @mongodb-js/mongodb-mcp-server \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
