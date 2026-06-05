@@ -277,19 +277,25 @@ class MongoDBMCPClient:
                 except:
                     pass
 
-# Initialize MongoDB MCP Client
+# Initialize MongoDB MCP Client (with timeout for Cloud Run)
 mcp_client = None
 if db is not None and MONGO_URI:
-    try:
-        mcp_client = MongoDBMCPClient(MONGO_URI)
-        if mcp_client.start():
-            logger.info("[MCP] MongoDB MCP integration active for hackathon compliance")
-        else:
-            logger.warning("[MCP] MCP server failed to start, continuing without MCP features")
+    # Only attempt MCP initialization in development/local environments
+    # Skip in production Cloud Run to avoid startup delays
+    if os.getenv("K_SERVICE") is None:  # K_SERVICE env var indicates Cloud Run
+        try:
+            logger.info("[MCP] Attempting MCP server initialization (local environment)")
+            mcp_client = MongoDBMCPClient(MONGO_URI)
+            if mcp_client.start():
+                logger.info("[MCP] MongoDB MCP integration active for hackathon compliance")
+            else:
+                logger.warning("[MCP] MCP server failed to start, continuing without MCP features")
+                mcp_client = None
+        except Exception as e:
+            logger.warning(f"[MCP] Could not initialize MCP client: {e}")
             mcp_client = None
-    except Exception as e:
-        logger.warning(f"[MCP] Could not initialize MCP client: {e}")
-        mcp_client = None
+    else:
+        logger.info("[MCP] Skipping MCP initialization in Cloud Run environment (use local dev for MCP features)")
 
 # ==============================================================================
 # PHASE 1: INITIALIZE GOOGLE GEN AI SDK (VERTEX AI MODE)
