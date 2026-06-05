@@ -81,6 +81,9 @@ SentinelOps-MemNexus/
 ├── src/                           # Backend Python code
 │   ├── agent.py                  # Flask API with Gemini, MongoDB MCP client
 │   └── index_docs.py             # MongoDB document ingestion script
+├── scripts/                       # Utility scripts
+│   ├── batch_ingest_via_api.py   # Batch SRE runbooks ingestion via API
+│   └── ingest_sre_library.py     # Local runbook ingestion script
 ├── docs/                          # Documentation
 │   ├── DEPLOYMENT.md             # Cloud Run deployment guide
 │   ├── SECURITY.md               # Security & credential management
@@ -91,12 +94,11 @@ SentinelOps-MemNexus/
 ├── config.js                      # Environment detection & API config
 ├── LICENSE                        # MIT License (hackathon requirement)
 ├── deploy.ps1                     # Secure Cloud Run deployment script
-├── batch_ingest_via_api.py       # Batch SRE runbooks ingestion
-├── ingest_sre_library.py         # Local ingestion script
 ├── Dockerfile                     # Multi-runtime container (Python + Node.js)
 ├── requirements.txt               # Python dependencies
 ├── .env.example                   # Environment variable template
-├── .gcloudignore                  # Files to exclude from deployment
+├── .gitignore                     # Git ignore patterns
+├── .gcloudignore                  # Cloud Run deployment exclusions
 └── README.md                      # This file
 ```
 

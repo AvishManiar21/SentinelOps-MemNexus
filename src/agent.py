@@ -267,6 +267,23 @@ class MongoDBMCPClient:
                 logger.error(f"[MCP] Request failed for {method}: {e}")
                 return None
 
+    def _send_notification(self, method: str, params: dict = None):
+        """Send JSON-RPC 2.0 notification (no id, no response expected)"""
+        with self.lock:
+            if self.process and self.process.poll() is not None:
+                return
+            notification = {
+                "jsonrpc": "2.0",
+                "method": method
+            }
+            if params:
+                notification["params"] = params
+            try:
+                self.process.stdin.write(json.dumps(notification) + "\n")
+                self.process.stdin.flush()
+            except Exception as e:
+                logger.warning(f"[MCP] Failed to send notification {method}: {e}")
+
     def _initialize_connection(self):
         """Perform MCP initialization handshake"""
         try:
@@ -284,7 +301,7 @@ class MongoDBMCPClient:
                 raise Exception("Initialize request failed")
 
             # Step 2: Initialized notification
-            self._send_request("notifications/initialized")
+            self._send_notification("notifications/initialized")
 
             # Step 3: List available tools
             tools_result = self._send_request("tools/list")
