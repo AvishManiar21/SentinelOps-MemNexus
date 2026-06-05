@@ -118,8 +118,8 @@ class MongoDBMCPClient:
 
             # Launch MCP server with connection string
             # On Windows, npx is npx.cmd and requires shell=True
-            # Use direct command if globally installed, otherwise use npx
-            mcp_cmd = ["mongodb-mcp-server"] if not is_windows else ["npx", "-y", "@mongodb-js/mongodb-mcp-server"]
+            # Use direct command if globally installed, otherwise use npx with correct package name
+            mcp_cmd = ["mongodb-mcp-server"] if not is_windows else ["npx", "-y", "mongodb-mcp-server"]
 
             self.process = subprocess.Popen(
                 mcp_cmd,
@@ -129,7 +129,11 @@ class MongoDBMCPClient:
                 text=True,
                 bufsize=1,
                 shell=is_windows,
-                env={**os.environ, "MONGODB_URI": self.connection_string}
+                env={
+                    **os.environ,
+                    "MONGODB_URI": self.connection_string,
+                    "MDB_MCP_CONNECTION_STRING": self.connection_string
+                }
             )
 
             # Log any stderr output for debugging
@@ -216,8 +220,19 @@ class MongoDBMCPClient:
 
                 def read_response():
                     try:
-                        line = self.process.stdout.readline()
-                        response_container.append(line)
+                        while True:
+                            line = self.process.stdout.readline()
+                            if not line:
+                                break
+                            try:
+                                data = json.loads(line)
+                                if isinstance(data, dict) and data.get("id") == self.message_id:
+                                    response_container.append(line)
+                                    break
+                                else:
+                                    logger.info(f"[MCP Message/Notification] {line.strip()}")
+                            except json.JSONDecodeError:
+                                logger.warning(f"[MCP Raw Output] {line.strip()}")
                     except Exception as e:
                         error_container.append(e)
 
