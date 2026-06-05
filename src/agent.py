@@ -12,7 +12,6 @@ import json
 import subprocess
 import threading
 import atexit
-import platform
 from dotenv import load_dotenv
 
 # Configure robust logging for monitoring
@@ -109,8 +108,8 @@ class MongoDBMCPClient:
         self.lock = threading.Lock()
         self.initialized = False
 
-    def start(self):
-        """Launch the MongoDB MCP server as a subprocess"""
+    def start(self, timeout: int = 30):
+        """Launch the MongoDB MCP server as a subprocess with timeout"""
         try:
             logger.info("[MCP] Launching MongoDB MCP server via npx...")
 
@@ -130,8 +129,35 @@ class MongoDBMCPClient:
                 env={**os.environ, "MONGODB_URI": self.connection_string}
             )
 
-            # Perform MCP initialization handshake
-            self._initialize_connection()
+            # Perform MCP initialization handshake with timeout
+            init_success = []
+            init_error = []
+
+            def initialize():
+                try:
+                    self._initialize_connection()
+                    init_success.append(True)
+                except Exception as e:
+                    init_error.append(e)
+
+            init_thread = threading.Thread(target=initialize, daemon=True)
+            init_thread.start()
+            init_thread.join(timeout=timeout)
+
+            if init_thread.is_alive():
+                logger.error(f"[MCP] Initialization timed out after {timeout}s")
+                self.stop()
+                return False
+
+            if init_error:
+                logger.error(f"[MCP] Initialization failed: {init_error[0]}")
+                self.stop()
+                return False
+
+            if not init_success:
+                logger.error("[MCP] Initialization completed but no success signal")
+                self.stop()
+                return False
 
             # Register cleanup on exit
             atexit.register(self.stop)
@@ -146,8 +172,8 @@ class MongoDBMCPClient:
             logger.error(f"[MCP] Failed to start MongoDB MCP server: {e}")
             return False
 
-    def _send_request(self, method: str, params: dict = None) -> dict:
-        """Send JSON-RPC 2.0 request to MCP server"""
+    def _send_request(self, method: str, params: dict = None, timeout: int = 10) -> dict:
+        """Send JSON-RPC 2.0 request to MCP server with timeout"""
         with self.lock:
             # Check if process is still alive
             if self.process and self.process.poll() is not None:
@@ -168,13 +194,34 @@ class MongoDBMCPClient:
                 self.process.stdin.write(request_json)
                 self.process.stdin.flush()
 
-                # Read response
-                response_line = self.process.stdout.readline()
-                if not response_line:
+                # Read response with timeout using threading
+                response_container = []
+                error_container = []
+
+                def read_response():
+                    try:
+                        line = self.process.stdout.readline()
+                        response_container.append(line)
+                    except Exception as e:
+                        error_container.append(e)
+
+                reader_thread = threading.Thread(target=read_response, daemon=True)
+                reader_thread.start()
+                reader_thread.join(timeout=timeout)
+
+                if reader_thread.is_alive():
+                    logger.error(f"[MCP] Request '{method}' timed out after {timeout}s")
+                    return None
+
+                if error_container:
+                    logger.error(f"[MCP] Read error: {error_container[0]}")
+                    return None
+
+                if not response_container or not response_container[0]:
                     logger.error("[MCP] Empty response from MCP server")
                     return None
 
-                response = json.loads(response_line)
+                response = json.loads(response_container[0])
 
                 if "error" in response:
                     logger.error(f"[MCP] Error response: {response['error']}")
@@ -280,22 +327,17 @@ class MongoDBMCPClient:
 # Initialize MongoDB MCP Client (with timeout for Cloud Run)
 mcp_client = None
 if db is not None and MONGO_URI:
-    # Only attempt MCP initialization in development/local environments
-    # Skip in production Cloud Run to avoid startup delays
-    if os.getenv("K_SERVICE") is None:  # K_SERVICE env var indicates Cloud Run
-        try:
-            logger.info("[MCP] Attempting MCP server initialization (local environment)")
-            mcp_client = MongoDBMCPClient(MONGO_URI)
-            if mcp_client.start():
-                logger.info("[MCP] MongoDB MCP integration active for hackathon compliance")
-            else:
-                logger.warning("[MCP] MCP server failed to start, continuing without MCP features")
-                mcp_client = None
-        except Exception as e:
-            logger.warning(f"[MCP] Could not initialize MCP client: {e}")
+    try:
+        logger.info("[MCP] Attempting MCP server initialization with 30s timeout")
+        mcp_client = MongoDBMCPClient(MONGO_URI)
+        if mcp_client.start(timeout=30):
+            logger.info("[MCP] MongoDB MCP integration active for hackathon compliance")
+        else:
+            logger.warning("[MCP] MCP server failed to start, continuing without MCP features")
             mcp_client = None
-    else:
-        logger.info("[MCP] Skipping MCP initialization in Cloud Run environment (use local dev for MCP features)")
+    except Exception as e:
+        logger.warning(f"[MCP] Could not initialize MCP client: {e}")
+        mcp_client = None
 
 # ==============================================================================
 # PHASE 1: INITIALIZE GOOGLE GEN AI SDK (VERTEX AI MODE)
