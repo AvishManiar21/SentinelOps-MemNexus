@@ -12,6 +12,7 @@ import json
 import subprocess
 import threading
 import atexit
+from threading import local
 from dotenv import load_dotenv
 
 # Configure robust logging for monitoring
@@ -25,6 +26,9 @@ ch.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
+
+# Thread-local storage for grounding sources (vector search results)
+thread_local = local()
 
 # Load local environment variables if present
 load_dotenv()
@@ -535,7 +539,16 @@ def search_knowledge_base(query: str) -> str:
         if not results:
             logger.warning("RAG Vector search yielded no results in database.")
             return "No matching enterprise SRE runbooks were found in the database."
-            
+
+        # Store grounding sources in thread-local storage for UI display
+        grounding_sources = []
+        for r in results:
+            grounding_sources.append({
+                "title": r.get('title'),
+                "score": round(r.get('score', 0), 4)
+            })
+        thread_local.grounding_sources = grounding_sources
+
         formatted_results = []
         for i, r in enumerate(results):
             formatted_results.append(f"[{i+1}] Title: {r.get('title')}\nContent: {r.get('content')}\nRelevance: {r.get('score'):.4f}\n")
@@ -947,8 +960,9 @@ def api_chat():
 
         logger.info(f"API Request: POST /api/chat from '{user_id}' using {model}: '{message[:40]}'")
 
-        # Clear log capturer string so we only get logs from this single call
+        # Clear log capturer string and grounding sources for this request
         get_captured_traces()
+        thread_local.grounding_sources = []
 
         # Query the active Gemini chat session with selected model
         chat = get_user_chat(user_id, model)
@@ -968,13 +982,15 @@ def api_chat():
             response_length=len(response.text)
         )
 
-        # Capture operations logs
+        # Capture operations logs and grounding sources
         traces = get_captured_traces()
+        grounding_sources = getattr(thread_local, 'grounding_sources', [])
 
         return jsonify({
             "response": response.text,
             "model_used": model,
-            "traces": traces
+            "traces": traces,
+            "grounding_sources": grounding_sources
         })
     except Exception as e:
         logger.error(f"Error in chat endpoint: {e}")

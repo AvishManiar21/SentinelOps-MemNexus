@@ -644,12 +644,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function appendChatMessage(sender, text, modelUsed) {
+    function appendChatMessage(sender, text, modelUsed, groundingSources) {
         const msg = document.createElement('div');
         msg.className = `message ${sender}`;
         let bubble = `<div class="message-bubble">${text}</div>`;
         if (sender === 'agent' && modelUsed) {
             bubble += `<div class="model-badge">${modelUsed === 'gemini-2.5-pro' ? '🧠 Pro' : '⚡ Flash'}</div>`;
+        }
+        // Add grounding sources if available
+        if (sender === 'agent' && groundingSources && groundingSources.length > 0) {
+            bubble += '<div class="grounding-sources">';
+            bubble += '<div class="grounding-header">📚 MongoDB Atlas Vector Search Results</div>';
+            groundingSources.forEach((source, idx) => {
+                const scorePercent = Math.round(source.score * 100);
+                bubble += `
+                    <div class="grounding-item">
+                        <span class="grounding-rank">#${idx + 1}</span>
+                        <span class="grounding-title">${source.title}</span>
+                        <span class="grounding-score">${scorePercent}% match</span>
+                    </div>
+                `;
+            });
+            bubble += '</div>';
         }
         msg.innerHTML = bubble;
         chatMessages.appendChild(msg);
@@ -693,9 +709,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error('API server returned error');
             const data = await res.json();
 
-            // Render agent completion with model badge
-            appendChatMessage('agent', data.response, data.model_used || selectedModel);
-            
+            // Render agent completion with model badge and grounding sources
+            appendChatMessage('agent', data.response, data.model_used || selectedModel, data.grounding_sources);
+
             // Stream captured operational traces
             streamTraces(data.traces);
             
