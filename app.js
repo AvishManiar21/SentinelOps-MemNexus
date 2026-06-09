@@ -557,10 +557,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
 
             // 1. Render Users Collection
+            dbUserCard.innerHTML = '';
             if (data.users && data.users.length > 0) {
-                dbUserCard.textContent = JSON.stringify(data.users[0], null, 2);
+                data.users.forEach(user => {
+                    const doc = document.createElement('div');
+                    doc.className = 'db-document';
+                    doc.innerHTML = `
+                        <div class="doc-header">
+                            <span class="doc-id">id: "${user._id}"</span>
+                            <span class="doc-tag">Collection: users</span>
+                        </div>
+                        <pre class="doc-body">${JSON.stringify(user, null, 2)}</pre>
+                    `;
+                    dbUserCard.appendChild(doc);
+                });
             } else {
-                dbUserCard.textContent = '// No user profiles indexed in users collection.';
+                dbUserCard.innerHTML = '<div class="db-document"><pre class="doc-body">// No user profiles indexed in users collection.</pre></div>';
             }
 
             // 2. Render Incident Sessions Collection
