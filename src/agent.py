@@ -1180,7 +1180,7 @@ def api_db_collections():
                 "knowledge_vectors": []
             })
             
-        users = list(db.users.find().limit(10))
+        users = list(db.users.find().sort("last_active", -1).limit(10))
         sessions = list(db.sessions.find().sort("timestamp", -1).limit(15))
         vectors = list(db.knowledge_vectors.find().limit(10))
         
