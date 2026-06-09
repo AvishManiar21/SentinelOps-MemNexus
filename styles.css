@@ -380,8 +380,10 @@ code {
     min-height: 100vh;
     overflow-x: hidden;
     max-width: 100%;
+    width: calc(100% - 280px);
     margin-left: 280px;
-    transition: margin-left var(--transition-slow);
+    transition: margin-left var(--transition-slow), width var(--transition-slow);
+    box-sizing: border-box;
 }
 
 /* Header */
@@ -893,6 +895,8 @@ code {
     position: relative;
     overflow: hidden;
     min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .glass-card::before {
@@ -1156,6 +1160,8 @@ code {
     display: none;
     flex-direction: column;
     gap: 24px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 .tab-pane.active {
     display: flex;
@@ -1204,6 +1210,8 @@ code {
     margin-bottom: var(--space-2xl);
     position: relative;
     overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .home-hero::before {
@@ -1251,6 +1259,8 @@ code {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .hero-subtitle {
@@ -1336,6 +1346,8 @@ code {
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--space-lg);
     margin-bottom: var(--space-2xl);
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .feature-card {
@@ -1400,6 +1412,8 @@ code {
     border-radius: var(--radius-lg);
     padding: var(--space-2xl) var(--space-lg);
     margin-bottom: var(--space-2xl);
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .stat-item {
@@ -1434,6 +1448,8 @@ code {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: var(--space-2xl);
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .section-title {
@@ -1478,6 +1494,12 @@ code {
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+    .hero-title {
+        font-size: 3rem;
+    }
+}
+
 @media (max-width: 768px) {
     .hero-title {
         font-size: 2.5rem;
@@ -1513,6 +1535,19 @@ code {
     }
 }
 
+/* Adjust hero when sidebar is collapsed to prevent overflow */
+@media (min-width: 769px) {
+    body[data-sidebar="collapsed"] .hero-title {
+        font-size: 4.5rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    body[data-sidebar="expanded"] .hero-title {
+        font-size: 3rem;
+    }
+}
+
 /* Tab 1 Grid */
 .dashboard-grid {
     display: grid;
@@ -1520,6 +1555,8 @@ code {
     gap: 24px;
     min-width: 0;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* Progress SVG styling */
@@ -2875,6 +2912,7 @@ body[data-sidebar="collapsed"] .sidebar {
 
 body[data-sidebar="collapsed"] .main-content {
     margin-left: 0;
+    width: 100%;
 }
 
 /* Hamburger menu is now part of sidebar-brand, no position adjustments needed */
