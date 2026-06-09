@@ -110,94 +110,114 @@
 
             <!-- TAB 0: HOME -->
             <section class="tab-pane active" id="home">
-                <!-- Hero Tagline -->
-                <div class="hero-tagline">
-                    <h1>SentinelOps — Grounded SRE Answers from MongoDB Atlas Vector Search</h1>
-                    <p>Real-time incident diagnosis powered by Gemini 2.5, MongoDB Atlas vector embeddings, and MCP tool orchestration</p>
-                </div>
-
-                <!-- Welcome Content -->
-                <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 24px;">
-                    <div class="glass-card">
-                        <h2 class="card-title">🎯 What is SentinelOps?</h2>
-                        <div style="padding: var(--space-lg); line-height: 1.8; color: var(--text-secondary);">
-                            <p style="margin-bottom: var(--space-md);">
-                                SentinelOps is an AI-powered Site Reliability Engineering assistant that combines <strong>MongoDB Atlas Vector Search</strong>, <strong>Gemini 2.5</strong>, and <strong>Model Context Protocol (MCP)</strong> to deliver grounded, accurate incident diagnostics.
-                            </p>
-                            <p style="margin-bottom: var(--space-md);">
-                                Unlike traditional chatbots, SentinelOps grounds every response in your organization's runbook library using semantic vector search, ensuring answers are factually correct and traceable.
-                            </p>
-                            <p style="margin: 0;">
-                                <strong style="color: var(--primary-orange);">Key Features:</strong>
-                            </p>
-                            <ul style="margin: var(--space-sm) 0 0 var(--space-lg); padding: 0;">
-                                <li>768-dimensional vector embeddings for semantic runbook retrieval</li>
-                                <li>Real-time Gemini 2.5 Flash/Pro model selection</li>
-                                <li>25 MongoDB MCP tools for database operations</li>
-                                <li>AI-synthesized user memory profiles</li>
-                                <li>Transparent grounding sources with similarity scores</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="glass-card">
-                        <h2 class="card-title">🚀 Quick Start Guide</h2>
-                        <div style="padding: var(--space-lg);">
-                            <div style="margin-bottom: var(--space-lg);">
-                                <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-sm);">
-                                    <span style="background: var(--primary-orange); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">1</span>
-                                    <strong style="color: var(--text-primary);">Try the SRE Diagnostic Chat</strong>
-                                </div>
-                                <p style="margin: 0 0 0 40px; color: var(--text-secondary); line-height: 1.6;">
-                                    Ask questions about infrastructure issues and see MongoDB Atlas vector search retrieve relevant runbooks in real-time.
-                                </p>
-                            </div>
-
-                            <div style="margin-bottom: var(--space-lg);">
-                                <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-sm);">
-                                    <span style="background: var(--primary-orange); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">2</span>
-                                    <strong style="color: var(--text-primary);">Explore MongoDB Memory Core</strong>
-                                </div>
-                                <p style="margin: 0 0 0 40px; color: var(--text-secondary); line-height: 1.6;">
-                                    View live data from MongoDB Atlas: user profiles with AI-synthesized summaries, chat sessions, and vector-embedded runbooks.
-                                </p>
-                            </div>
-
-                            <div style="margin-bottom: var(--space-lg);">
-                                <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-sm);">
-                                    <span style="background: var(--primary-orange); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">3</span>
-                                    <strong style="color: var(--text-primary);">Upload Your Runbooks</strong>
-                                </div>
-                                <p style="margin: 0 0 0 40px; color: var(--text-secondary); line-height: 1.6;">
-                                    Use the Runbook Ingester to add your own SRE documentation. Watch as it gets vectorized and indexed in MongoDB Atlas.
-                                </p>
-                            </div>
-
-                            <div>
-                                <div style="display: flex; align-items: center; gap: var(--space-md); margin-bottom: var(--space-sm);">
-                                    <span style="background: var(--primary-orange); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem;">4</span>
-                                    <strong style="color: var(--text-primary);">Test Incident Simulation</strong>
-                                </div>
-                                <p style="margin: 0 0 0 40px; color: var(--text-secondary); line-height: 1.6;">
-                                    See the full workflow: from incident detection to AI diagnosis to automated GitLab merge request generation.
-                                </p>
-                            </div>
+                <!-- Hero Section -->
+                <div class="home-hero">
+                    <div class="hero-content">
+                        <div class="hero-badge">Google Cloud Rapid Agent Hackathon 2026</div>
+                        <h1 class="hero-title">SentinelOps</h1>
+                        <p class="hero-subtitle">Grounded SRE Answers from MongoDB Atlas Vector Search</p>
+                        <p class="hero-description">
+                            AI-powered incident diagnosis combining <span class="highlight">MongoDB Atlas Vector Search</span>,
+                            <span class="highlight">Gemini 2.5</span>, and <span class="highlight">MCP</span> for factually-grounded responses backed by your runbook library.
+                        </p>
+                        <div class="hero-cta">
+                            <button class="cta-primary" onclick="document.querySelector('[data-tab=diagnostic-chat]').click()">
+                                <span>Try Live Demo</span>
+                                <span class="cta-arrow">→</span>
+                            </button>
+                            <button class="cta-secondary" onclick="document.querySelector('[data-tab=memory-core]').click()">
+                                <span>View MongoDB Data</span>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tech Stack Badges -->
-                <div class="glass-card" style="margin-top: 24px;">
-                    <h2 class="card-title">⚙️ Technology Stack</h2>
-                    <div style="display: flex; flex-wrap: wrap; gap: var(--space-md); padding: var(--space-lg);">
-                        <span class="tech-badge">MongoDB Atlas Vector Search</span>
-                        <span class="tech-badge">Gemini 2.5 Flash/Pro</span>
-                        <span class="tech-badge">Model Context Protocol (MCP)</span>
-                        <span class="tech-badge">Google Cloud Run</span>
-                        <span class="tech-badge">Vertex AI</span>
-                        <span class="tech-badge">Flask + Python</span>
-                        <span class="tech-badge">GitHub Pages</span>
-                        <span class="tech-badge">768D Embeddings (text-embedding-004)</span>
+                <!-- Feature Cards -->
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3 class="feature-title">Semantic Vector Search</h3>
+                        <p class="feature-description">
+                            768-dimensional embeddings enable semantic matching of incidents to relevant runbooks with cosine similarity scoring.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">🧠</div>
+                        <h3 class="feature-title">AI Memory Synthesis</h3>
+                        <p class="feature-description">
+                            Gemini automatically generates personalized user profiles by analyzing conversation history and context patterns.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3 class="feature-title">Transparent Grounding</h3>
+                        <p class="feature-description">
+                            Every response shows which runbooks were used with exact similarity scores—no hallucinations, just facts.
+                        </p>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="feature-title">MCP Tool Orchestra</h3>
+                        <p class="feature-description">
+                            25 MongoDB MCP tools orchestrated by Gemini for database reads, writes, aggregations, and vector search operations.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="stats-section">
+                    <div class="stat-item">
+                        <div class="stat-value">768</div>
+                        <div class="stat-label">Embedding Dimensions</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value">25</div>
+                        <div class="stat-label">MongoDB MCP Tools</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Gemini Models (Flash/Pro)</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">Grounded Responses</div>
+                    </div>
+                </div>
+
+                <!-- Tech Stack -->
+                <div class="tech-stack-section">
+                    <h2 class="section-title">Powered By</h2>
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <div class="tech-icon">🍃</div>
+                            <div class="tech-name">MongoDB Atlas</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">✨</div>
+                            <div class="tech-name">Gemini 2.5</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🔌</div>
+                            <div class="tech-name">Model Context Protocol</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">☁️</div>
+                            <div class="tech-name">Google Cloud Run</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🎯</div>
+                            <div class="tech-name">Vertex AI</div>
+                        </div>
+                        <div class="tech-item">
+                            <div class="tech-icon">🐍</div>
+                            <div class="tech-name">Flask + Python</div>
+                        </div>
                     </div>
                 </div>
             </section>
