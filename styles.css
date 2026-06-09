@@ -1161,6 +1161,31 @@ code {
     display: flex;
 }
 
+/* Hero Tagline */
+.hero-tagline {
+    text-align: center;
+    padding: var(--space-xl) var(--space-lg);
+    background: linear-gradient(135deg, rgba(217, 119, 87, 0.08) 0%, rgba(91, 159, 215, 0.08) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-md);
+}
+
+.hero-tagline h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-sm) 0;
+    letter-spacing: -0.02em;
+}
+
+.hero-tagline p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
 /* Tab 1 Grid */
 .dashboard-grid {
     display: grid;
