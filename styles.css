@@ -1186,6 +1186,26 @@ code {
     line-height: 1.5;
 }
 
+/* Tech Stack Badges */
+.tech-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(217, 119, 87, 0.1);
+    border: 1px solid rgba(217, 119, 87, 0.3);
+    border-radius: var(--radius-md);
+    color: var(--primary-orange-light);
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.tech-badge:hover {
+    background: rgba(217, 119, 87, 0.15);
+    border-color: rgba(217, 119, 87, 0.5);
+    transform: translateY(-1px);
+}
+
 /* Tab 1 Grid */
 .dashboard-grid {
     display: grid;
