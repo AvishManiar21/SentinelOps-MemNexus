@@ -620,31 +620,49 @@ def _generate_ai_memory_summary(user_id: str, recent_messages: list, conversatio
         AI-generated summary string
     """
     try:
-        # Build context from recent messages
+        # Build context from ALL recent messages to identify patterns
         conversation_context = "\n".join([
-            f"User: {msg.get('user_message', '')[:150]}\nAgent: {msg.get('agent_response', '')[:150]}"
-            for msg in recent_messages[-5:]  # Last 5 conversations for better context
+            f"User: {msg.get('user_message', '')[:100]}"
+            for msg in recent_messages[-10:]  # Last 10 to see broader patterns
         ])
 
-        prompt = f"""Analyze this user's conversation history and create a professional summary describing their role and technical expertise.
+        # Extract unique technical topics from questions
+        topics = set()
+        for msg in recent_messages:
+            user_msg = msg.get('user_message', '').lower()
+            if 'redis' in user_msg:
+                topics.add('Redis')
+            if 'mongodb' in user_msg or 'database' in user_msg:
+                topics.add('MongoDB')
+            if 'nginx' in user_msg or 'proxy' in user_msg:
+                topics.add('Nginx')
+            if 'docker' in user_msg or 'kubernetes' in user_msg or 'k8s' in user_msg:
+                topics.add('containerization')
+            if 'incident' in user_msg or 'troubleshoot' in user_msg:
+                topics.add('incident response')
+            if 'performance' in user_msg or 'optimization' in user_msg:
+                topics.add('performance tuning')
+
+        topics_list = ', '.join(sorted(topics)) if topics else 'infrastructure management'
+
+        prompt = f"""Based on this user's conversation patterns, create a professional role summary.
 
 User ID: {user_id}
 Total Conversations: {conversation_count}
+Technical areas discussed: {topics_list}
 
-Recent exchanges:
-{conversation_context}
+IMPORTANT: Create a GENERAL professional role summary, not a list of specific topics. Focus on their likely role and broad expertise areas.
 
-Create a concise summary (100-150 characters) focusing on:
-- Their professional role or position
-- Technical domains and areas of expertise
-- Key responsibilities or focus areas
+Good examples:
+- "Site Reliability Engineer managing production infrastructure and performance optimization"
+- "DevOps Engineer specializing in cloud infrastructure and CI/CD pipelines"
+- "Backend Engineer focused on distributed systems and database architecture"
 
-Use professional third-person tone. Examples:
-- "Lead DevOps Engineer managing Redis cache optimization and MongoDB performance tuning in production"
-- "SRE specialist focused on incident response, observability tooling, and high-availability systems"
-- "Backend developer exploring AI agent architectures with vector search and RAG implementations"
+Bad examples (too specific/topic-focused):
+- "SRE troubleshooting Redis cache and Nginx configuration" ❌
+- "Engineer working on MongoDB connection pooling" ❌
 
-Summary:"""
+Create a 100-150 character summary of their ROLE and EXPERTISE AREAS (not specific tasks):"""
 
         # Use Gemini Flash for quick summarization
         response = ai_client.models.generate_content(
@@ -685,11 +703,21 @@ def save_chat_history(user_id: str, user_message: str, agent_response: str) -> s
         })
 
         # Get recent conversation history for AI synthesis
-        recent_sessions = list(db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(5))
+        recent_sessions = list(db.sessions.find({"user_id": user_id}).sort("timestamp", -1).limit(10))
         conversation_count = db.sessions.count_documents({"user_id": user_id})
 
-        # Generate AI-powered memory summary
-        ai_summary = _generate_ai_memory_summary(user_id, recent_sessions, conversation_count)
+        # Only regenerate AI summary every 3 messages to avoid over-fitting to recent topics
+        should_regenerate = (conversation_count % 3 == 0) or conversation_count <= 2
+
+        if should_regenerate:
+            # Generate AI-powered memory summary
+            ai_summary = _generate_ai_memory_summary(user_id, recent_sessions, conversation_count)
+        else:
+            # Keep existing summary
+            existing_user = db.users.find_one({"user_id": user_id})
+            ai_summary = existing_user.get("ai_synthesis_summary") if existing_user else None
+            if not ai_summary:
+                ai_summary = _generate_ai_memory_summary(user_id, recent_sessions, conversation_count)
 
         # Update user summary context incrementally
         user_record = db.users.find_one({"user_id": user_id})
