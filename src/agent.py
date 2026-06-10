@@ -620,49 +620,39 @@ def _generate_ai_memory_summary(user_id: str, recent_messages: list, conversatio
         AI-generated summary string
     """
     try:
-        # Build context from ALL recent messages to identify patterns
-        conversation_context = "\n".join([
-            f"User: {msg.get('user_message', '')[:100]}"
-            for msg in recent_messages[-10:]  # Last 10 to see broader patterns
-        ])
+        # Build context from recent messages - just the questions
+        user_questions = [msg.get('user_message', '') for msg in recent_messages[-10:]]
+        conversation_context = "\n".join([f"- {q[:120]}" for q in user_questions if q])
 
-        # Extract unique technical topics from questions
-        topics = set()
-        for msg in recent_messages:
-            user_msg = msg.get('user_message', '').lower()
-            if 'redis' in user_msg:
-                topics.add('Redis')
-            if 'mongodb' in user_msg or 'database' in user_msg:
-                topics.add('MongoDB')
-            if 'nginx' in user_msg or 'proxy' in user_msg:
-                topics.add('Nginx')
-            if 'docker' in user_msg or 'kubernetes' in user_msg or 'k8s' in user_msg:
-                topics.add('containerization')
-            if 'incident' in user_msg or 'troubleshoot' in user_msg:
-                topics.add('incident response')
-            if 'performance' in user_msg or 'optimization' in user_msg:
-                topics.add('performance tuning')
-
-        topics_list = ', '.join(sorted(topics)) if topics else 'infrastructure management'
-
-        prompt = f"""Based on this user's conversation patterns, create a professional role summary.
+        prompt = f"""You are analyzing a user's conversation history to build a stable professional profile.
 
 User ID: {user_id}
 Total Conversations: {conversation_count}
-Technical areas discussed: {topics_list}
 
-IMPORTANT: Create a GENERAL professional role summary, not a list of specific topics. Focus on their likely role and broad expertise areas.
+Recent questions they've asked:
+{conversation_context}
 
-Good examples:
-- "Site Reliability Engineer managing production infrastructure and performance optimization"
-- "DevOps Engineer specializing in cloud infrastructure and CI/CD pipelines"
-- "Backend Engineer focused on distributed systems and database architecture"
+TASK: Infer their professional ROLE and broad EXPERTISE AREAS from the types of questions they ask.
 
-Bad examples (too specific/topic-focused):
-- "SRE troubleshooting Redis cache and Nginx configuration" ❌
-- "Engineer working on MongoDB connection pooling" ❌
+CRITICAL RULES:
+1. Focus on WHO they are (role/position), not WHAT they asked about recently
+2. Identify PATTERNS in their questions (e.g., if they ask about multiple infrastructure topics → likely SRE/DevOps)
+3. Use GENERAL expertise areas (e.g., "infrastructure", "distributed systems", "cloud platforms")
+4. NEVER list specific tools/technologies (no "Redis", "MongoDB", etc.)
+5. Think about their JOB TITLE and RESPONSIBILITIES, not their last question
 
-Create a 100-150 character summary of their ROLE and EXPERTISE AREAS (not specific tasks):"""
+GOOD examples (role-focused, stable):
+✓ "Site Reliability Engineer managing production infrastructure and operational excellence"
+✓ "DevOps Engineer specializing in cloud platforms and automation"
+✓ "Backend Engineer focused on distributed systems and data architecture"
+✓ "Platform Engineer building scalable microservices and observability solutions"
+
+BAD examples (topic-focused, unstable):
+✗ "SRE troubleshooting Redis cache and Nginx issues"
+✗ "Engineer working on MongoDB performance"
+✗ "DevOps managing database connections"
+
+Output ONLY the summary (100-150 characters), nothing else:"""
 
         # Use Gemini Flash for quick summarization
         response = ai_client.models.generate_content(
