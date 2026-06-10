@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 One-time cleanup script to fix user document schema inconsistencies.
 
@@ -13,8 +14,13 @@ Ensures all users have only:
 """
 
 import os
+import sys
 from pymongo import MongoClient
 from dotenv import load_dotenv
+
+# Fix Windows console encoding
+if sys.platform == 'win32':
+    sys.stdout.reconfigure(encoding='utf-8')
 
 load_dotenv()
 
@@ -25,9 +31,9 @@ if not MONGODB_URI:
     exit(1)
 
 client = MongoClient(MONGODB_URI)
-db = client.sre_knowledge_db
+db = client.memnexus_db
 
-print("🔍 Checking user documents for legacy fields...")
+print("[*] Checking user documents for legacy fields...")
 
 # Find all users
 users = list(db.users.find())
@@ -46,8 +52,8 @@ for user in users:
         changes.append('preferences')
 
     if changes:
-        print(f"📝 User: {user_id}")
-        print(f"   Legacy fields found: {', '.join(changes)}")
+        print(f"[>] User: {user_id}")
+        print(f"    Legacy fields found: {', '.join(changes)}")
 
         # Build $unset operation to remove legacy fields
         unset_fields = {}
@@ -61,18 +67,18 @@ for user in users:
         )
 
         if result.modified_count > 0:
-            print(f"   ✅ Removed: {', '.join(changes)}")
+            print(f"    [OK] Removed: {', '.join(changes)}")
         else:
-            print(f"   ⚠️  Update failed")
+            print(f"    [!] Update failed")
     else:
-        print(f"✅ User: {user_id} - Schema already clean")
+        print(f"[OK] User: {user_id} - Schema already clean")
 
 print("\n" + "="*60)
-print("✨ Cleanup complete!")
+print("[*] Cleanup complete!")
 print("="*60)
 
 # Verify clean schema
-print("\n🔍 Verifying clean schema...")
+print("\n[*] Verifying clean schema...")
 users_after = list(db.users.find())
 
 issues_found = False
@@ -92,11 +98,11 @@ for user in users_after:
         problems.append('missing ai_synthesis_summary')
 
     if problems:
-        print(f"⚠️  {user_id}: {', '.join(problems)}")
+        print(f"[!] {user_id}: {', '.join(problems)}")
         issues_found = True
 
 if not issues_found:
-    print("✅ All user documents have clean schema!")
+    print("[OK] All user documents have clean schema!")
     print("\nExpected fields in each user:")
     print("  - user_id")
     print("  - username")
