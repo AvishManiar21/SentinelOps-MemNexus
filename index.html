@@ -57,10 +57,10 @@
 
             <div class="sidebar-footer">
                 <div class="user-badge">
-                    <div class="user-avatar">AM</div>
+                    <div class="user-avatar" id="sidebar-avatar">AM</div>
                     <div class="user-info">
-                        <span class="username">AvishManiar21</span>
-                        <span class="user-role">Lead DevOps Engineer</span>
+                        <span class="username" id="sidebar-username">AvishManiar21</span>
+                        <span class="user-role">SRE Engineer</span>
                     </div>
                 </div>
             </div>
@@ -399,47 +399,15 @@
 
                     <!-- Subtab: Users -->
                     <div class="subtab-pane active" id="col-users">
-                        <div class="db-document">
-                            <div class="doc-header">
-                                <span class="doc-id">id: "sre_AvishManiar21"</span>
-                                <span class="doc-tag">Collection: users</span>
-                            </div>
-                            <pre class="doc-body" id="db-user-data">
-{
-  "_id": "sre_AvishManiar21",
-  "username": "AvishManiar21",
-  "project_role": "Lead DevOps Engineer",
-  "memory_tags": [
-    "ActiveCommunicator",
-    "MongoDBAtlasOperational",
-    "GCP_SRE_Agent"
-  ],
-  "preferences": {
-    "framework": "Google_Gen_AI_SDK",
-    "active_region": "us-central1",
-    "last_active": "2026-05-29T22:45:30"
-  },
-  "ai_synthesis_summary": "Lead SRE Engineer managing the avish-memnexus-2026 stack. Active session monitoring fully enabled."
-}</pre>
+                        <div id="db-user-data">
+                            <!-- Live data loaded from MongoDB Atlas -->
                         </div>
                     </div>
 
                     <!-- Subtab: Sessions -->
                     <div class="subtab-pane" id="col-sessions">
                         <div id="sessions-list-container">
-                            <div class="db-document">
-                                <div class="doc-header">
-                                    <span class="doc-id">id: "ses_sre_incident_1"</span>
-                                    <span class="doc-tag">Collection: sessions</span>
-                                </div>
-                                <pre class="doc-body">
-{
-  "user_id": "AvishManiar21",
-  "user_message": "Tell me about SRE protocols",
-  "agent_response": "Here's information about the SRE Incident Response Protocol - Phase 4: When a CPU usage spike occurs, the agent executes log analysis, writes a hotfix, and opens a GitLab Merge Request...",
-  "timestamp": "2026-05-29T22:07:55"
-}</pre>
-                                </div>
+                            <!-- Live chat sessions loaded from MongoDB Atlas -->
                         </div>
                     </div>
 

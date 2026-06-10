@@ -663,12 +663,40 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Update sidebar username display
+    function updateSidebarUsername(userId) {
+        const sidebarUsername = document.getElementById('sidebar-username');
+        const sidebarAvatar = document.getElementById('sidebar-avatar');
+        if (sidebarUsername) {
+            sidebarUsername.textContent = userId;
+        }
+        if (sidebarAvatar && userId) {
+            // Create initials from user ID
+            const initials = userId
+                .split(/[_\-\.]/)
+                .map(part => part[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+            sidebarAvatar.textContent = initials || 'AM';
+        }
+    }
+
+    // Initial sidebar update
+    updateSidebarUsername(savedUserId);
+
     // Save user ID when changed
     if (userIdInput) {
         userIdInput.addEventListener('change', () => {
             const newUserId = userIdInput.value.trim() || 'AvishManiar21';
             localStorage.setItem('userId', newUserId);
+            updateSidebarUsername(newUserId);
             logTerminalLine(`User ID changed to: ${newUserId}`, 'sys');
+        });
+
+        userIdInput.addEventListener('input', () => {
+            const newUserId = userIdInput.value.trim() || 'AvishManiar21';
+            updateSidebarUsername(newUserId);
         });
     }
 
