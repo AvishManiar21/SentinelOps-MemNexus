@@ -577,33 +577,30 @@ def load_user_memory(user_id: str) -> str:
     """
     logger.info(f"Tool Triggered: load_user_memory('{user_id}')")
     if db is None:
-        return f"User Identity: {user_id}\nPreferences: {{'last_active': '2026-05-29'}}\nMemory Tags: NewParticipant, GCP_SRE_Agent\nAI Memory Synthesis: Lead SRE managing the avish-memnexus-2026 stack."
+        return f"User Identity: {user_id}\nLast Active: 2026-05-29\nMemory Tags: NewParticipant, GCP_SRE_Agent\nAI Memory Synthesis: Lead SRE managing the avish-memnexus-2026 stack."
 
     try:
         user_record = db.users.find_one({"user_id": user_id})
         if not user_record:
             # Create a default record if none exists
+            from datetime import datetime
             db.users.insert_one({
                 "user_id": user_id,
                 "username": user_id,
                 "project_role": "Lead DevOps Engineer",
                 "memory_tags": ["NewParticipant", "GCP_SRE_Agent"],
-                "preferences": {
-                    "framework": "Google_Gen_AI_SDK",
-                    "active_region": GCP_LOCATION,
-                    "last_active": "2026-05-29T22:45:30"
-                },
+                "last_active": datetime.utcnow().isoformat(),
                 "ai_synthesis_summary": "Lead SRE Engineer managing the avish-memnexus-2026 stack."
             })
             user_record = db.users.find_one({"user_id": user_id})
-        
-        pref = user_record.get("preferences", {})
+
+        last_active = user_record.get("last_active", "Unknown")
         tags = ", ".join(user_record.get("memory_tags", []))
         summary = user_record.get("ai_synthesis_summary", "Lead SRE Engineer.")
-        
+
         return (
             f"User Identity: {user_id}\n"
-            f"Preferences: {pref}\n"
+            f"Last Active: {last_active}\n"
             f"Memory Tags: {tags}\n"
             f"AI Memory Synthesis: {summary}"
         )
@@ -697,11 +694,7 @@ def save_chat_history(user_id: str, user_message: str, agent_response: str) -> s
                 "username": user_id,
                 "project_role": "Lead DevOps Engineer",
                 "memory_tags": ["NewParticipant", "GCP_SRE_Agent", "ActiveCommunicator"],
-                "preferences": {
-                    "framework": "Google_Gen_AI_SDK",
-                    "active_region": GCP_LOCATION,
-                    "last_active": datetime.utcnow().isoformat()
-                },
+                "last_active": datetime.utcnow().isoformat(),
                 "ai_synthesis_summary": ai_summary
             })
         else:
