@@ -625,11 +625,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('send-chat-btn');
     const chatMessages = document.getElementById('chat-messages-container');
     const modelSelector = document.getElementById('model-selector');
+    const userIdInput = document.getElementById('user-id-input');
 
     // Load saved model preference
     const savedModel = localStorage.getItem('selectedModel') || 'gemini-2.5-flash';
     if (modelSelector) {
         modelSelector.value = savedModel;
+    }
+
+    // Load saved user ID preference
+    const savedUserId = localStorage.getItem('userId') || 'AvishManiar21';
+    if (userIdInput) {
+        userIdInput.value = savedUserId;
     }
 
     // Save model preference when changed and update description
@@ -653,6 +660,15 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('selectedModel', modelSelector.value);
             updateModelDescription(modelSelector.value);
             logTerminalLine(`Switched to ${modelSelector.value}`, 'sys');
+        });
+    }
+
+    // Save user ID when changed
+    if (userIdInput) {
+        userIdInput.addEventListener('change', () => {
+            const newUserId = userIdInput.value.trim() || 'AvishManiar21';
+            localStorage.setItem('userId', newUserId);
+            logTerminalLine(`User ID changed to: ${newUserId}`, 'sys');
         });
     }
 
@@ -689,6 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!query) return;
 
         const selectedModel = modelSelector ? modelSelector.value : 'gemini-2.5-flash';
+        const currentUserId = userIdInput ? userIdInput.value.trim() || 'AvishManiar21' : 'AvishManiar21';
 
         // Append user prompt
         appendChatMessage('user', query);
@@ -702,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.appendChild(thinkingBubble);
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
-        logTerminalLine(`Received SRE request: "${query}" [Model: ${selectedModel}]`, 'sys');
+        logTerminalLine(`Received SRE request: "${query}" [User: ${currentUserId}, Model: ${selectedModel}]`, 'sys');
 
         try {
             const res = await fetch(`${API_BASE}/api/chat`, {
@@ -710,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: query,
-                    user_id: 'AvishManiar21',
+                    user_id: currentUserId,
                     model: selectedModel
                 })
             });
@@ -767,13 +784,14 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
 
         try {
+            const currentUserId = userIdInput ? userIdInput.value.trim() || 'AvishManiar21' : 'AvishManiar21';
             const res = await fetch(`${API_BASE}/api/diagnose`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     incident_id: 'spike',
                     description: 'Server Latency Spike — us-central1 CPU Usage 98.4%',
-                    user_id: 'AvishManiar21'
+                    user_id: currentUserId
                 })
             });
 

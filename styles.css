@@ -1049,6 +1049,38 @@ code {
     min-width: 0;
 }
 
+/* User ID Input */
+.user-id-input {
+    background: var(--bg-dark);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 0.95rem;
+    font-family: var(--font-primary);
+    font-weight: 600;
+    transition: var(--transition);
+    flex: 1;
+    height: 40px;
+    min-width: 200px;
+}
+
+.user-id-input::placeholder {
+    color: var(--text-tertiary);
+    font-weight: 400;
+}
+
+.user-id-input:hover {
+    border-color: var(--primary-orange);
+    background-color: var(--bg-medium);
+}
+
+.user-id-input:focus {
+    outline: none;
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 3px var(--primary-orange-glow);
+}
+
 .card-title::before {
     content: '';
     position: absolute;
