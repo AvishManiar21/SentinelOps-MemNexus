@@ -622,11 +622,11 @@ def _generate_ai_memory_summary(user_id: str, recent_messages: list, conversatio
     try:
         # Build context from recent messages
         conversation_context = "\n".join([
-            f"User: {msg.get('user_message', '')[:100]}\nAgent: {msg.get('agent_response', '')[:100]}"
-            for msg in recent_messages[-3:]  # Last 3 conversations
+            f"User: {msg.get('user_message', '')[:150]}\nAgent: {msg.get('agent_response', '')[:150]}"
+            for msg in recent_messages[-5:]  # Last 5 conversations for better context
         ])
 
-        prompt = f"""Analyze this user's conversation history and create a concise 1-sentence memory summary (max 80 chars).
+        prompt = f"""Analyze this user's conversation history and create a professional summary describing their role and technical expertise.
 
 User ID: {user_id}
 Total Conversations: {conversation_count}
@@ -634,10 +634,15 @@ Total Conversations: {conversation_count}
 Recent exchanges:
 {conversation_context}
 
-Generate a brief, factual summary of their interests/needs. Examples:
-- "SRE engineer troubleshooting MongoDB connection issues"
-- "DevOps lead implementing observability for production systems"
-- "Developer exploring vector search and AI agent patterns"
+Create a concise summary (100-150 characters) focusing on:
+- Their professional role or position
+- Technical domains and areas of expertise
+- Key responsibilities or focus areas
+
+Use professional third-person tone. Examples:
+- "Lead DevOps Engineer managing Redis cache optimization and MongoDB performance tuning in production"
+- "SRE specialist focused on incident response, observability tooling, and high-availability systems"
+- "Backend developer exploring AI agent architectures with vector search and RAG implementations"
 
 Summary:"""
 
@@ -648,9 +653,9 @@ Summary:"""
         )
         summary = response.text.strip().strip('"').strip("'")
 
-        # Truncate to 100 chars max
-        if len(summary) > 100:
-            summary = summary[:97] + "..."
+        # Truncate to 150 chars max for better context
+        if len(summary) > 150:
+            summary = summary[:147] + "..."
 
         return summary
     except Exception as e:
