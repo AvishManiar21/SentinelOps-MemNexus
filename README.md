@@ -38,6 +38,16 @@ curl -X POST https://sentinelops-api-782741881130.us-central1.run.app/api/chat \
 
 The chat response includes a `grounding_sources` array showing exactly which runbooks MongoDB Atlas Vector Search matched, and how strongly.
 
+### 📚 Sample Questions & Runbooks
+
+**Want to test the system?** We've prepared sample content for you:
+
+- **[SAMPLE_QUESTIONS.md](./SAMPLE_QUESTIONS.md)** - 50+ ready-to-use questions across Redis, MongoDB, Nginx, Kubernetes, security, and more. Each question triggers vector search and shows grounding sources.
+
+- **[SAMPLE_RUNBOOKS.md](./SAMPLE_RUNBOOKS.md)** - 6 production-ready runbooks (PostgreSQL, Elasticsearch, Docker, Kafka, GitLab CI/CD, Terraform) that you can copy-paste into the Runbook Ingester to expand the knowledge base.
+
+Try asking a question from `SAMPLE_QUESTIONS.md`, then ingest a runbook from `SAMPLE_RUNBOOKS.md` and see it appear in the grounding sources!
+
 ---
 
 ## 🎬 Live Demo Walkthrough
