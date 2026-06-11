@@ -1,7 +1,7 @@
 # 🚨 SentinelOps: Autonomous SRE Memory Agent & Portal
 ### Google Cloud Rapid Agent Hackathon Submission (MongoDB Atlas Track)
 
-[![Cloud Run](https://img.shields.io/badge/Cloud%20Run-Deployed-blue?logo=google-cloud)](https://sentinelops-api-yucauzs4lq-uc.a.run.app)
+[![Cloud Run](https://img.shields.io/badge/Cloud%20Run-Deployed-blue?logo=google-cloud)](https://sentinelops-api-782741881130.us-central1.run.app)
 [![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-green?logo=mongodb)](https://www.mongodb.com/cloud/atlas)
 [![Gemini 2.5](https://img.shields.io/badge/Gemini-2.5%20Flash%20%7C%20Pro-orange?logo=google)](https://ai.google.dev/)
 
@@ -13,17 +13,25 @@ This hackathon submission showcases MongoDB Atlas integration with vector search
 
 ---
 
+## 🎥 Demo Video
+
+**Watch the full demo**: [https://youtu.be/QrElopiAmoU](https://youtu.be/QrElopiAmoU)
+
+[![SentinelOps Demo](https://img.youtube.com/vi/QrElopiAmoU/maxresdefault.jpg)](https://youtu.be/QrElopiAmoU)
+
+---
+
 ## ⚡ Try It in 60 Seconds
 
-**Live App (frontend)**: open `index.html` from GitHub Pages
-**Live API (backend)**: [https://sentinelops-api-yucauzs4lq-uc.a.run.app](https://sentinelops-api-yucauzs4lq-uc.a.run.app)
+**Live App (frontend)**: [https://avishmaniar21.github.io/SentinelOps-MemNexus/](https://avishmaniar21.github.io/SentinelOps-MemNexus/)
+**Live API (backend)**: [https://sentinelops-api-782741881130.us-central1.run.app](https://sentinelops-api-782741881130.us-central1.run.app)
 
 ```bash
 # 1. Confirm everything is online (backend, Vertex AI, MongoDB, MCP)
-curl https://sentinelops-api-yucauzs4lq-uc.a.run.app/api/health
+curl https://sentinelops-api-782741881130.us-central1.run.app/api/health
 
 # 2. Ask the agent a real SRE question — watch it ground on a runbook via Atlas Vector Search
-curl -X POST https://sentinelops-api-yucauzs4lq-uc.a.run.app/api/chat \
+curl -X POST https://sentinelops-api-782741881130.us-central1.run.app/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"How do I fix Nginx rate limiting during a DDoS?","user_id":"demo"}'
 ```
@@ -152,7 +160,7 @@ SentinelOps-MemNexus/
 
 ## 🎯 Live Demo
 
-**Production Deployment**: [https://sentinelops-api-yucauzs4lq-uc.a.run.app](https://sentinelops-api-yucauzs4lq-uc.a.run.app)
+**Production Deployment**: [https://sentinelops-api-782741881130.us-central1.run.app](https://sentinelops-api-782741881130.us-central1.run.app)
 
 **API Endpoints**:
 - `GET /` - Basic API status check
@@ -399,7 +407,7 @@ MongoDB Connection Fault • Node.js OOM Heap Leak • Nginx Rate Limiting & DDo
 **Webhook**: Send observability alerts via `/api/webhook/alert` (requires `X-Webhook-Secret` header if `WEBHOOK_SECRET` env var is set)
 
 ```bash
-curl -X POST https://sentinelops-api-yucauzs4lq-uc.a.run.app/api/webhook/alert \
+curl -X POST https://sentinelops-api-782741881130.us-central1.run.app/api/webhook/alert \
   -H "Content-Type: application/json" \
   -H "X-Webhook-Secret: your-webhook-secret" \
   -d '{"alert_name": "CPU Critical", "severity": "CRITICAL", "source": "Dynatrace"}'
